@@ -1,54 +1,26 @@
-import type { Coordinate } from 'ol/coordinate.js';
 import type Feature from 'ol/Feature.js';
 import type Geometry from 'ol/geom/Geometry.js';
 import type SimpleGeometry from 'ol/geom/SimpleGeometry.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import type OlMap from 'ol/Map.js';
-import type MapBrowserEvent from 'ol/MapBrowserEvent.js';
 import VectorSource from 'ol/source/Vector.js';
+import { createTransforms } from './actions.js';
+import type { Teodolito } from './api.js';
 import { createCommands } from './commands.js';
 import { startDrawing, type Drawing } from './drawing.js';
 import { defaultUnits, formatMeasure, type Units } from './format.js';
-import { readCollection, writeCollection, type TeodolitoCollection } from './geojson.js';
+import { readCollection, writeCollection } from './geojson.js';
+import { createHandles } from './handles.js';
 import { createHistory } from './history.js';
 import { createEditing } from './interactions.js';
 import { listenKeys } from './keyboard.js';
 import { measureGeometry, type Measure } from './measure.js';
 import { createRegistry, type Entry } from './registry.js';
-import { createStore, type Listener } from './store.js';
-import { layerStyle, sketchStyle } from './styling.js';
+import { listenPointer } from './pointer.js';
+import { createStore } from './store.js';
+import { handleStyle, layerStyle, sketchStyle } from './styling.js';
 import type { Item, Kind, Props, Snapshot, TeodolitoEvent, TeodolitoOptions, Tool } from './types.js';
 import { createTextEditing } from './text.js';
-
-export interface Teodolito {
-    readonly map: OlMap;
-    readonly layer: VectorLayer<VectorSource<Feature<Geometry>>>;
-    readonly source: VectorSource<Feature<Geometry>>;
-    getSnapshot(): Snapshot;
-    subscribe(listener: Listener): () => void;
-    setTool(tool: Tool | null): void;
-    removeLastPoint(): void;
-    finishDrawing(): void;
-    abortDrawing(): void;
-    select(id: string | null): void;
-    remove(id: string): boolean;
-    clear(): boolean;
-    setVisible(id: string, visible: boolean): void;
-    setProps(id: string, props: Props): boolean;
-    editText(id: string): void;
-    commitText(value: string): void;
-    cancelText(): void;
-    undo(): boolean;
-    redo(): boolean;
-    setUnits(units: Partial<Units>): void;
-    format(measure: Measure): string;
-    getFeature(id: string): Feature<Geometry> | null;
-    getCoordinate(id: string): Coordinate | null;
-    toGeoJSON(): TeodolitoCollection;
-    fromGeoJSON(collection: unknown): void;
-    escape(): boolean;
-    destroy(): void;
-}
 
 let counter = 0;
 const newId = (): string => `t${Date.now().toString(36)}${(counter++).toString(36)}`;
@@ -59,8 +31,10 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
     const defaultProps = (kind: Kind): Props => options.defaultProps?.(kind) ?? {};
     const store = createStore<Snapshot>({
         tool: null, drawing: false, sketch: null, items: [], selectedId: null, editingTextId: null,
-        units: { ...defaultUnits, ...options.units }, canUndo: false, canRedo: false,
+        symbol: options.symbol ?? '', units: { ...defaultUnits, ...options.units }, canUndo: false, canRedo: false,
     });
+    const sides = options.circleSides ?? 64;
+    const limits = options.scaleLimits ?? [0.25, 4] as const;
     const history = createHistory(options.historyLimit);
     const source = new VectorSource<Feature<Geometry>>();
     const registry = createRegistry(source, (items) => store.set({ items }));
@@ -74,6 +48,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         selectedId: () => store.get().selectedId,
         editingId: () => store.get().editingTextId,
         tool: () => store.get().tool,
+        symbol: () => store.get().symbol,
         label: (kind: Kind, measure: Measure, text: string) => (kind === 'text' ? text : format(measure)),
         defaultProps,
         projection,
@@ -88,6 +63,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         if (previous === next) return;
         const kind = next ? registry.item(next)?.kind : undefined;
         editing.select((next && registry.feature(next)) || null, kind !== 'circle' && kind !== 'rectangle');
+        handles?.show(next);
         store.set({ selectedId: next });
         refresh(previous);
         refresh(next);
@@ -129,6 +105,14 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         },
     });
     const text = createTextEditing({ store, registry, ops, commands, recorded, emit });
+    const transforms = createTransforms({ registry, commands, recorded, projection, sides, limits });
+    const handles = options.handles === false ? null : createHandles({
+        map, registry, commands, recorded, projection, sides, limits,
+        update: ops.update,
+        style: options.handleStyle ?? handleStyle(styling),
+        zIndex: (options.zIndex ?? 1000) + 1,
+        tolerance: options.hitTolerance ?? 8,
+    });
 
     source.on('changefeature', (event) => {
         const id = event.feature?.getId();
@@ -141,7 +125,10 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         const id = newId();
         ops.insert({
             feature,
-            item: { id, kind: tool, measure: measureGeometry(geometry, projection(), tool), text: '', props: defaultProps(tool), visible: true },
+            item: {
+                id, kind: tool, measure: measureGeometry(geometry, projection(), tool), text: '', props: defaultProps(tool),
+                visible: true, symbol: tool === 'symbol' ? store.get().symbol : '', rotation: 0, scale: 1,
+            },
             index: Number.POSITIVE_INFINITY,
         });
         if (tool === 'text') text.begin(id, true);
@@ -157,7 +144,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         store.set({ tool, drawing: false, sketch: null });
         if (tool) {
             drawing = startDrawing({
-                map, tool, projection, circleSides: options.circleSides ?? 64,
+                map, tool, projection, circleSides: sides,
                 style: sketchStyle(styling),
                 onSketch: (sketch) => store.set({ sketch, drawing: sketch !== null }),
                 onEnd: (feature) => onDrawEnd(tool, feature),
@@ -167,23 +154,19 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         emit({ type: 'tool', tool });
     };
 
-    const hit = (event: MapBrowserEvent): string | null => {
-        const feature = map.forEachFeatureAtPixel(event.pixel, (f) => f, {
-            layerFilter: (candidate) => candidate === layer,
-            hitTolerance: options.hitTolerance ?? 6,
-        });
-        return feature ? String(feature.getId()) : null;
-    };
-    const onClick = (event: MapBrowserEvent): void => { if (!store.get().tool) select(hit(event)); };
-    const onDoubleClick = (event: MapBrowserEvent): void => {
-        const id = store.get().tool ? null : hit(event);
-        if (!id || registry.item(id)?.kind !== 'text') return;
-        event.preventDefault();
-        event.stopPropagation();
-        text.begin(id, false);
-    };
-    map.on('singleclick', onClick);
-    map.on('dblclick', onDoubleClick);
+    const unlistenPointer = listenPointer({
+        map, layer,
+        hitTolerance: options.hitTolerance ?? 6,
+        active: () => !store.get().tool,
+        blocked: (event) => handles?.at(event.pixel) ?? false,
+        onClick: select,
+        onDoubleClick(id, event) {
+            if (registry.item(id)?.kind !== 'text') return;
+            event.preventDefault();
+            event.stopPropagation();
+            text.begin(id, false);
+        },
+    });
 
     const undo = (): boolean => { text.cancel(); return recorded(history.undo()) && (emit({ type: 'undo' }), true); };
     const redo = (): boolean => { text.cancel(); return recorded(history.redo()) && (emit({ type: 'redo' }), true); };
@@ -214,6 +197,8 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         getSnapshot: store.get,
         subscribe: store.subscribe,
         setTool,
+        setSymbol: (symbol) => store.set({ symbol }),
+        ...transforms,
         removeLastPoint,
         finishDrawing: () => drawing?.draw.finishDrawing(),
         abortDrawing: () => drawing?.draw.abortDrawing(),
@@ -250,6 +235,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
                 registry.insert(parsed.feature, {
                     id, kind: parsed.kind, measure: measureGeometry(geometry, projection(), parsed.kind),
                     text: parsed.text, props: parsed.props, visible: parsed.visible,
+                    symbol: parsed.symbol, rotation: parsed.rotation, scale: parsed.scale,
                 });
             });
             history.clear();
@@ -260,8 +246,8 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         destroy() {
             setTool(null);
             unlistenKeys();
-            map.un('singleclick', onClick);
-            map.un('dblclick', onDoubleClick);
+            unlistenPointer();
+            handles?.dispose();
             editing.dispose();
             map.removeLayer(layer);
         },

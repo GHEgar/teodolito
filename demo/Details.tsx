@@ -1,20 +1,53 @@
 import { formatAngle, formatBearing, type Item } from 'teodolito';
+import { useTeodolito } from 'teodolito/react';
+import { Icon } from './icons';
 import { len } from './units';
 
 const locale = 'es-MX';
+const STEP = Math.PI / 4;
+
+function Transform({ item }: { item: Item }) {
+    const t = useTeodolito();
+    if (item.kind === 'point' || item.kind === 'freehand') return null;
+    return (
+        <div className="transform" role="group" aria-label="Transformar">
+            {item.kind !== 'circle' && <>
+                <button type="button" className="icon" aria-label="Girar a la izquierda" onClick={() => t.rotate(item.id, -STEP)}>
+                    <Icon name="rotateCcw" />
+                </button>
+                <button type="button" className="icon" aria-label="Girar a la derecha" onClick={() => t.rotate(item.id, STEP)}>
+                    <Icon name="rotateCw" />
+                </button>
+            </>}
+            <button type="button" className="icon" aria-label="Agrandar" onClick={() => t.scale(item.id, 1.25)}>
+                <Icon name="grow" />
+            </button>
+            <button type="button" className="icon" aria-label="Achicar" onClick={() => t.scale(item.id, 0.8)}>
+                <Icon name="shrink" />
+            </button>
+            {(item.kind === 'text' || item.kind === 'symbol') && (
+                <span data-testid="transform-state">
+                    {formatAngle((((item.rotation * 180) / Math.PI) % 360 + 360) % 360, { locale, maximumFractionDigits: 0 })}
+                    {' · ×'}{item.scale.toFixed(2)}
+                </span>
+            )}
+        </div>
+    );
+}
 
 export function Details({ item }: { item: Item }) {
     const { measure } = item;
-    if (measure.kind !== 'length' && measure.kind !== 'area') return null;
     const shape = measure.kind === 'area' ? measure.shape : undefined;
+    const segments = measure.kind === 'length' || measure.kind === 'area' ? measure : null;
     return (
         <div className="details" data-testid="details">
+            <Transform item={item} />
             {shape?.type === 'circle' && <p data-testid="radius">Radio {len(shape.radius)}</p>}
             {shape?.type === 'rectangle' && <p data-testid="sides">{len(shape.width)} × {len(shape.height)}</p>}
-            {measure.segments.length > 0 && (
+            {segments && segments.segments.length > 0 && (
                 <ol className="segments" data-testid="segments">
-                    {measure.segments.map((segment, i) => {
-                        const angle = measure.angles.find((candidate) => candidate.vertex === i);
+                    {segments.segments.map((segment, i) => {
+                        const angle = segments.angles.find((candidate) => candidate.vertex === i);
                         return (
                             <li key={i}>
                                 <span>{len(segment.length)}</span>

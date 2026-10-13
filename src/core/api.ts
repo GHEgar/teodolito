@@ -1,0 +1,43 @@
+import type { Coordinate } from 'ol/coordinate.js';
+import type Feature from 'ol/Feature.js';
+import type Geometry from 'ol/geom/Geometry.js';
+import type VectorLayer from 'ol/layer/Vector.js';
+import type OlMap from 'ol/Map.js';
+import type VectorSource from 'ol/source/Vector.js';
+import type { Transforms } from './actions.js';
+import type { Units } from './format.js';
+import type { TeodolitoCollection } from './geojson.js';
+import type { Measure } from './measure.js';
+import type { Listener } from './store.js';
+import type { Props, Snapshot, Tool } from './types.js';
+
+export interface Teodolito extends Transforms {
+    readonly map: OlMap;
+    readonly layer: VectorLayer<VectorSource<Feature<Geometry>>>;
+    readonly source: VectorSource<Feature<Geometry>>;
+    getSnapshot(): Snapshot;
+    subscribe(listener: Listener): () => void;
+    setTool(tool: Tool | null): void;
+    setSymbol(symbol: string): void;
+    removeLastPoint(): void;
+    finishDrawing(): void;
+    abortDrawing(): void;
+    select(id: string | null): void;
+    remove(id: string): boolean;
+    clear(): boolean;
+    setVisible(id: string, visible: boolean): void;
+    setProps(id: string, props: Props): boolean;
+    editText(id: string): void;
+    commitText(value: string): void;
+    cancelText(): void;
+    undo(): boolean;
+    redo(): boolean;
+    setUnits(units: Partial<Units>): void;
+    format(measure: Measure): string;
+    getFeature(id: string): Feature<Geometry> | null;
+    getCoordinate(id: string): Coordinate | null;
+    toGeoJSON(): TeodolitoCollection;
+    fromGeoJSON(collection: unknown): void;
+    escape(): boolean;
+    destroy(): void;
+}

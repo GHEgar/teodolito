@@ -1,5 +1,6 @@
 export { createTeodolito } from './teodolito.js';
-export type { Teodolito } from './teodolito.js';
+export type { Teodolito } from './api.js';
+export type { StyleTransform, Transforms } from './actions.js';
 export { measureGeometry } from './measure.js';
 export type { Measure } from './measure.js';
 export { bearing, measureSegments } from './segments.js';
@@ -37,6 +38,7 @@ export type { LonLat, Sample, SampleOptions } from './sampling.js';
 export type { AngleFormatOptions, AreaUnit, FormatOptions, LengthUnit, Quantity, Units } from './format.js';
 export type { TeodolitoCollection, TeodolitoFeature } from './geojson.js';
 export type {
+    Handle,
     Item,
     Kind,
     Props,

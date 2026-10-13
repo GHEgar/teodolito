@@ -7,7 +7,7 @@ import { useTeodolitoInstance } from './context.js';
 export type TeodolitoActions = Pick<Teodolito,
     | 'setTool' | 'removeLastPoint' | 'finishDrawing' | 'abortDrawing' | 'select' | 'remove' | 'clear'
     | 'setVisible' | 'setProps' | 'editText' | 'commitText' | 'cancelText' | 'undo' | 'redo' | 'setUnits'
-    | 'format' | 'toGeoJSON' | 'fromGeoJSON' | 'escape'>;
+    | 'format' | 'toGeoJSON' | 'fromGeoJSON' | 'escape' | 'setSymbol' | 'rotate' | 'scale' | 'setTransform' | 'setRadius'>;
 
 export type UseTeodolito = Snapshot & TeodolitoActions & { instance: Teodolito };
 
@@ -64,6 +64,11 @@ export function useTeodolito(): UseTeodolito {
         toGeoJSON: instance.toGeoJSON,
         fromGeoJSON: instance.fromGeoJSON,
         escape: instance.escape,
+        setSymbol: instance.setSymbol,
+        rotate: instance.rotate,
+        scale: instance.scale,
+        setTransform: instance.setTransform,
+        setRadius: instance.setRadius,
     }), [instance]);
     return useMemo(() => ({ ...snapshot, ...actions }), [snapshot, actions]);
 }

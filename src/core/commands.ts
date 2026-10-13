@@ -3,7 +3,7 @@ import type { Entry, Registry } from './registry.js';
 import type { Item } from './types.js';
 
 export type Coordinates = unknown;
-export type Patch = Partial<Pick<Item, 'text' | 'props' | 'visible'>>;
+export type Patch = Partial<Pick<Item, 'text' | 'props' | 'visible' | 'symbol' | 'rotation' | 'scale'>>;
 
 export interface Operations {
     insert(entry: Entry): void;

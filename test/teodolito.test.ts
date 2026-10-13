@@ -134,6 +134,6 @@ describe('createTeodolito', () => {
         t.setTool('polygon');
         t.destroy();
         expect(t.map.getLayers().getLength()).toBe(0);
-        expect(t.map.getInteractions().getLength()).toBe(before - 3);
+        expect(t.map.getInteractions().getLength()).toBe(before - 4);
     });
 });

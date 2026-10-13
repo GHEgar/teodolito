@@ -52,7 +52,7 @@ describe('teodolito/react', () => {
         const map = new OlMap({ view: new View({ center: [0, 0], zoom: 2 }) });
         const { result, unmount } = renderHook(() => useCreateTeodolito(map, { keyboard: false }));
         expect(result.current).not.toBeNull();
-        expect(map.getLayers().getLength()).toBe(1);
+        expect(map.getLayers().getLength()).toBe(2);
         unmount();
         expect(map.getLayers().getLength()).toBe(0);
     });

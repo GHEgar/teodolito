@@ -5,6 +5,28 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [No publicado]
 
+## [0.5.0] - 2026-10-13
+
+### Agregado
+
+- Herramienta `symbol`: un `Point` con `symbol` (string opaco: emoji, id de ícono…); `setSymbol` y
+  `snapshot.symbol` eligen el que se pone, `symbol` en las opciones da el inicial.
+- `rotate(id, radianes, ancla?)` y `scale(id, factor, ancla?)` para todo: transforman la geometría de
+  línea, polígono, rectángulo y círculo (este no rota y escala regenerándose geodésico), y cambian
+  `rotation` y `scale` de texto y símbolo. Giros en sentido horario, como el rumbo y los estilos de OL.
+- `setTransform(id, { rotation, scale })` y `setRadius(id, metros)`; `scaleLimits` (`[0.25, 4]`).
+- Manijas sobre la selección (`handles`, prendidas por defecto): girar, escalar, radio del círculo y
+  esquinas del rectángulo, que redimensionan en su propio marco aunque esté rotado. Un arrastre es un
+  solo paso de deshacer. Se dibujan con la función de estilo (`context.handle`) o con `handleStyle`.
+- `Item` y `StyleContext` suman `symbol`, `rotation` y `scale`; GeoJSON los guarda y lee.
+- `teodolito/react`: `useTeodolito` expone `setSymbol`, `rotate`, `scale`, `setTransform` y `setRadius`.
+- Demo: símbolos con selector de emojis, manijas propias y botones de girar y escalar.
+
+### Cambiado
+
+- `Tool` y `Kind` suman `symbol`: un `switch` exhaustivo sobre `kind` deja de compilar.
+- La instancia agrega una capa y una interacción más para las manijas.
+
 ## [0.4.0] - 2026-10-13
 
 ### Agregado

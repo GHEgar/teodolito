@@ -6,7 +6,7 @@ import { swatches } from './style';
 
 const names: Record<Item['kind'], string> = {
     line: 'Distancia', polygon: 'Área', point: 'Punto', freehand: 'Trazo', text: 'Texto',
-    circle: 'Círculo', rectangle: 'Rectángulo',
+    circle: 'Círculo', rectangle: 'Rectángulo', symbol: 'Símbolo',
 };
 
 function download(data: unknown): void {
@@ -40,7 +40,7 @@ export function ItemList() {
                         <button type="button" className="pick" aria-pressed={t.selectedId === item.id}
                             onClick={() => t.select(item.id)}>
                             <span className="kind">{names[item.kind]}</span>
-                            <span className="value">{item.kind === 'text' ? item.text : t.format(item.measure)}</span>
+                            <span className="value">{item.kind === 'text' ? item.text : item.kind === 'symbol' ? `${item.symbol} ${t.format(item.measure)}` : t.format(item.measure)}</span>
                         </button>
                         <span className="swatches">
                             {swatches.map((color) => (

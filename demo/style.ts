@@ -1,6 +1,6 @@
 import Point from 'ol/geom/Point.js';
-import { Circle, Fill, Stroke, Style, Text } from 'ol/style.js';
-import { formatAngle, formatLength, type Measure, type StyleFunction } from 'teodolito';
+import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style.js';
+import { formatAngle, formatLength, type Measure, type StyleContext, type StyleFunction } from 'teodolito';
 
 export const swatches = ['#0f766e', '#c2410c', '#7c3aed', '#be123c', '#1d4ed8'];
 
@@ -55,6 +55,15 @@ function circleLabel(measure: Measure, fallback: string): string {
     return `${fallback}\nr = ${formatLength(measure.shape.radius, { locale: 'es-MX' }).text}`;
 }
 
+function handle(color: string, kind: NonNullable<StyleContext['handle']>): Style {
+    const round = kind === 'rotate' || kind === 'radius';
+    return new Style({
+        image: round
+            ? new Circle({ radius: 6, fill: new Fill({ color }), stroke: new Stroke({ color: '#fff', width: 2 }) })
+            : new RegularShape({ points: 4, radius: 7, angle: Math.PI / 4, fill: new Fill({ color: '#fff' }), stroke: new Stroke({ color, width: 2 }) }),
+    });
+}
+
 export const demoStyle: StyleFunction = (_feature, context) => {
     const color = typeof context.props.color === 'string' ? context.props.color : '#0f766e';
     const width = context.selected ? 4 : 2.5;
@@ -62,6 +71,7 @@ export const demoStyle: StyleFunction = (_feature, context) => {
     const stroke = new Stroke({ color, width, ...(dash ? { lineDash: dash } : {}) });
     const fill = new Fill({ color: `${color}22` });
     if (context.vertex) return new Style({ image: vertex(color, 4) });
+    if (context.handle) return handle(color, context.handle);
     switch (context.kind) {
         case 'polygon':
         case 'rectangle':
@@ -74,12 +84,22 @@ export const demoStyle: StyleFunction = (_feature, context) => {
             return new Style({ stroke });
         case 'point':
             return new Style({ image: vertex(color, context.selected ? 7 : 6), text: label(context.label, 'point', -18) });
+        case 'symbol':
+            return new Style({
+                text: new Text({
+                    text: context.symbol,
+                    font: `${Math.round(28 * context.scale)}px system-ui, sans-serif`,
+                    rotation: context.rotation,
+                    ...(context.selected ? { backgroundStroke: new Stroke({ color, width: 1.5 }), padding: [2, 2, 2, 2] } : {}),
+                }),
+            });
         case 'text':
             return new Style({
                 image: context.sketch || context.editing ? vertex(color, 4) : undefined,
                 text: new Text({
                     text: context.editing ? '' : context.text,
-                    font: `600 ${context.selected ? 17 : 16}px system-ui, sans-serif`,
+                    rotation: context.rotation,
+                    font: `600 ${Math.round((context.selected ? 17 : 16) * context.scale)}px system-ui, sans-serif`,
                     fill: new Fill({ color }),
                     stroke: halo,
                 }),

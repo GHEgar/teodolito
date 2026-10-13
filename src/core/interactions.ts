@@ -19,6 +19,7 @@ const drawTypes = {
     text: 'Point',
     circle: 'Circle',
     rectangle: 'Circle',
+    symbol: 'Point',
 } as const;
 
 export function createDraw(tool: Tool, style: StyleLike, circleSides = 64): Draw {

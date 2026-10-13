@@ -35,6 +35,7 @@ function App() {
         style: demoStyle,
         locale: 'es-MX',
         defaultProps: () => ({ color: swatches[0] }),
+        symbol: '🌳',
     });
 
     return (

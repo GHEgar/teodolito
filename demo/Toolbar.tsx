@@ -4,6 +4,8 @@ import type { Tool } from 'teodolito';
 import { Icon, type IconName } from './icons';
 import { showDetails, setShowDetails } from './style';
 
+export const symbols = ['🌳', '⛰️', '🏠', '🚩', '⚠️', '💧', '🚌', '⭐'];
+
 const tools: { tool: Tool | null; icon: IconName; label: string }[] = [
     { tool: null, icon: 'pointer', label: 'Seleccionar' },
     { tool: 'line', icon: 'line', label: 'Distancia' },
@@ -11,6 +13,7 @@ const tools: { tool: Tool | null; icon: IconName; label: string }[] = [
     { tool: 'circle', icon: 'circle', label: 'Círculo' },
     { tool: 'rectangle', icon: 'rectangle', label: 'Rectángulo' },
     { tool: 'point', icon: 'point', label: 'Punto' },
+    { tool: 'symbol', icon: 'symbol', label: 'Símbolo' },
     { tool: 'freehand', icon: 'freehand', label: 'Mano alzada' },
     { tool: 'text', icon: 'text', label: 'Texto' },
 ];
@@ -45,6 +48,14 @@ export function Toolbar() {
                 <Icon name="redo" />
             </button>
             {t.drawing && <span className="live" data-testid="sketch">{t.sketch ? t.format(t.sketch) : ''}</span>}
+            {t.tool === 'symbol' && (
+                <div className="symbols" role="radiogroup" aria-label="Símbolos">
+                    {symbols.map((symbol) => (
+                        <button key={symbol} type="button" role="radio" aria-checked={t.symbol === symbol}
+                            aria-label={`Símbolo ${symbol}`} onClick={() => t.setSymbol(symbol)}>{symbol}</button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

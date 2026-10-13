@@ -164,3 +164,65 @@ test('traza un círculo y un rectángulo con sus medidas por segmento', async ({
     await expect(page.getByTestId('segments').locator('li')).toHaveCount(4);
     await expect(page.getByTestId('segments').locator('li').first()).toContainText('∠ 90');
 });
+
+async function dragFrom(page: Page, from: { x: number; y: number }, to: { x: number; y: number }) {
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(to.x, to.y, { steps: 10 });
+    await page.mouse.up();
+}
+
+test('pone un símbolo y lo gira y escala con sus manijas', async ({ page }) => {
+    const c = await center(page);
+    await page.getByRole('button', { name: 'Símbolo', exact: true }).click();
+    await page.getByRole('radio', { name: 'Símbolo ⛰️' }).click();
+    await clickAt(page, c.x, c.y);
+    await expect(items(page).first().locator('.value')).toContainText('⛰️');
+    await page.getByRole('button', { name: 'Seleccionar' }).click();
+    await items(page).first().locator('.pick').click();
+    const state = page.getByTestId('transform-state');
+    await expect(state).toHaveText('0° · ×1.00');
+    await dragFrom(page, { x: c.x, y: c.y - 60 }, { x: c.x + 60, y: c.y });
+    await expect(state).toHaveText(/^90° · ×1\.00$/);
+    await dragFrom(page, { x: c.x, y: c.y + 32 }, { x: c.x, y: c.y + 64 });
+    await expect(state).toHaveText(/^90° · ×2\.00$/);
+    await page.getByRole('button', { name: 'Deshacer' }).click();
+    await expect(state).toHaveText('90° · ×1.00');
+});
+
+test('cambia el radio del círculo con su manija y el rectángulo rotado sigue siendo rectángulo', async ({ page }) => {
+    const c = await center(page);
+    await page.getByRole('button', { name: 'Círculo' }).click();
+    await clickAt(page, c.x - 150, c.y);
+    await clickAt(page, c.x - 100, c.y);
+    await page.getByRole('button', { name: 'Seleccionar' }).click();
+    await items(page).first().locator('.pick').click();
+    const radius = page.getByTestId('radius');
+    const before = await radius.textContent();
+    await dragFrom(page, { x: c.x - 150, y: c.y - 50 }, { x: c.x - 150, y: c.y - 120 });
+    await expect(radius).not.toHaveText(before ?? '');
+    await page.getByRole('button', { name: 'Deshacer' }).click();
+    await expect(radius).toHaveText(before ?? '');
+    await page.getByRole('button', { name: 'Rectángulo' }).click();
+    await clickAt(page, c.x + 50, c.y - 50);
+    await clickAt(page, c.x + 250, c.y + 50);
+    await page.getByRole('button', { name: 'Seleccionar' }).click();
+    await items(page).nth(1).locator('.pick').click();
+    await page.getByRole('button', { name: 'Girar a la derecha' }).click();
+    const sides = page.getByTestId('sides');
+    const square = await sides.textContent();
+    const corner = await page.evaluate(() => {
+        const map = (window as unknown as { olMap: import('ol/Map.js').default }).olMap;
+        const layer = map.getLayers().getArray().at(-1) as import('ol/layer/Vector.js').default;
+        const spot = layer.getSource()?.getFeatures().find((f) => f.get('handle') === 'corner' && f.get('index') === 2);
+        const point = spot?.getGeometry() as import('ol/geom/Point.js').default;
+        return map.getPixelFromCoordinate(point.getCoordinates());
+    });
+    const box = await page.getByTestId('map').boundingBox();
+    const from = { x: (box?.x ?? 0) + (corner[0] ?? 0), y: (box?.y ?? 0) + (corner[1] ?? 0) };
+    await dragFrom(page, from, { x: from.x + 40, y: from.y + 30 });
+    await expect(sides).not.toHaveText(square ?? '');
+    const angles = page.getByTestId('segments').locator('li');
+    await expect(angles).toHaveCount(4);
+    for (let i = 0; i < 4; i += 1) await expect(angles.nth(i)).toContainText(/∠ (89\.\d|90(\.\d)?)°/);
+});

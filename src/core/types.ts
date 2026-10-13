@@ -4,7 +4,8 @@ import type Style from 'ol/style/Style.js';
 import type { FormatOptions, Units } from './format.js';
 import type { Measure } from './measure.js';
 
-export type Tool = 'line' | 'polygon' | 'point' | 'freehand' | 'text' | 'circle' | 'rectangle';
+export type Tool = 'line' | 'polygon' | 'point' | 'freehand' | 'text' | 'circle' | 'rectangle' | 'symbol';
+export type Handle = 'rotate' | 'scale' | 'radius' | 'corner';
 export type Kind = Tool;
 export type Props = Readonly<Record<string, unknown>>;
 
@@ -15,6 +16,9 @@ export interface Item {
     readonly text: string;
     readonly props: Props;
     readonly visible: boolean;
+    readonly symbol: string;
+    readonly rotation: number;
+    readonly scale: number;
 }
 
 export interface Snapshot {
@@ -24,6 +28,7 @@ export interface Snapshot {
     readonly items: readonly Item[];
     readonly selectedId: string | null;
     readonly editingTextId: string | null;
+    readonly symbol: string;
     readonly units: Units;
     readonly canUndo: boolean;
     readonly canRedo: boolean;
@@ -39,6 +44,10 @@ export interface StyleContext {
     readonly editing: boolean;
     readonly sketch: boolean;
     readonly vertex: boolean;
+    readonly symbol: string;
+    readonly rotation: number;
+    readonly scale: number;
+    readonly handle: Handle | null;
     readonly resolution: number;
 }
 
@@ -57,6 +66,10 @@ export interface TeodolitoOptions {
     format?: Omit<FormatOptions, 'units' | 'locale'>;
     defaultProps?: (kind: Kind) => Props;
     circleSides?: number;
+    symbol?: string;
+    handles?: boolean;
+    handleStyle?: StyleLike;
+    scaleLimits?: readonly [number, number];
     once?: boolean;
     snap?: boolean;
     snapTolerance?: number;

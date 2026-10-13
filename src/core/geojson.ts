@@ -8,7 +8,7 @@ export interface TeodolitoFeature {
     type: 'Feature';
     id: string;
     geometry: unknown;
-    properties: { kind: Kind; text: string; props: Props; visible: boolean };
+    properties: { kind: Kind; text: string; props: Props; visible: boolean; symbol: string; rotation: number; scale: number };
 }
 
 export interface TeodolitoCollection {
@@ -23,9 +23,13 @@ export interface Parsed {
     text: string;
     props: Props;
     visible: boolean;
+    symbol: string;
+    rotation: number;
+    scale: number;
 }
 
-const kinds: readonly Kind[] = ['line', 'polygon', 'point', 'freehand', 'text', 'circle', 'rectangle'];
+const kinds: readonly Kind[] = ['line', 'polygon', 'point', 'freehand', 'text', 'circle', 'rectangle', 'symbol'];
+const finite = (value: unknown, fallback: number): number => (typeof value === 'number' && Number.isFinite(value) ? value : fallback);
 
 const options = (projection: ProjectionLike) => ({ dataProjection: 'EPSG:4326', featureProjection: projection });
 
@@ -37,7 +41,10 @@ export function writeCollection(entries: [Feature<Geometry>, Item][], projection
             type: 'Feature',
             id: item.id,
             geometry: format.writeGeometryObject(feature.getGeometry() as Geometry, options(projection)),
-            properties: { kind: item.kind, text: item.text, props: item.props, visible: item.visible },
+            properties: {
+                kind: item.kind, text: item.text, props: item.props, visible: item.visible,
+                symbol: item.symbol, rotation: item.rotation, scale: item.scale,
+            },
         })),
     };
 }
@@ -51,7 +58,10 @@ export function readCollection(collection: unknown, projection: ProjectionLike):
         const text = feature.get('text');
         const props = feature.get('props');
         const visible = feature.get('visible') !== false;
-        ['kind', 'text', 'props', 'visible'].forEach((key) => feature.unset(key, true));
+        const symbol = feature.get('symbol');
+        const rotation = finite(feature.get('rotation'), 0);
+        const scale = finite(feature.get('scale'), 1);
+        ['kind', 'text', 'props', 'visible', 'symbol', 'rotation', 'scale'].forEach((key) => feature.unset(key, true));
         return [{
             feature,
             id: id === undefined ? null : String(id),
@@ -59,6 +69,9 @@ export function readCollection(collection: unknown, projection: ProjectionLike):
             text: typeof text === 'string' ? text : '',
             props: props && typeof props === 'object' ? props : {},
             visible,
+            symbol: typeof symbol === 'string' ? symbol : '',
+            rotation,
+            scale: scale > 0 ? scale : 1,
         }];
     });
 }
