@@ -2,9 +2,15 @@ export { createTeodolito } from './teodolito.js';
 export type { Teodolito } from './teodolito.js';
 export { measureGeometry } from './measure.js';
 export type { Measure } from './measure.js';
+export { bearing, measureSegments } from './segments.js';
+export type { Angle, Segment, Segments } from './segments.js';
+export { circleShape, rectangleShape } from './shapes.js';
+export type { Shape } from './shapes.js';
 export {
     defaultUnits,
+    formatAngle,
     formatArea,
+    formatBearing,
     formatElevation,
     formatLength,
     formatLonLat,
@@ -28,7 +34,7 @@ export { buildProfile } from './profile.js';
 export type { Extreme, Profile, ProfilePoint } from './profile.js';
 export { interpolate, sampleLine } from './sampling.js';
 export type { LonLat, Sample, SampleOptions } from './sampling.js';
-export type { AreaUnit, FormatOptions, LengthUnit, Quantity, Units } from './format.js';
+export type { AngleFormatOptions, AreaUnit, FormatOptions, LengthUnit, Quantity, Units } from './format.js';
 export type { TeodolitoCollection, TeodolitoFeature } from './geojson.js';
 export type {
     Item,

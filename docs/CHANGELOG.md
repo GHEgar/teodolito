@@ -5,6 +5,25 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [No publicado]
 
+## [0.4.0] - 2026-10-13
+
+### Agregado
+
+- Herramientas `circle` (polígono geodésico desde centro y radio en metros, `circleSides`, 64 por
+  defecto) y `rectangle` (dos esquinas, alineado a los ejes del mapa); se guardan como `Polygon`.
+- `measure.segments` (longitud, rumbo geodésico y punto medio) y `measure.angles` (ángulo interior en
+  polígonos, entre segmentos en líneas) para línea, polígono y rectángulo.
+- `measure.shape`: centro y radio del círculo, ancho y alto del rectángulo, recalculados con cada cambio.
+- `measureSegments`, `bearing`, `formatAngle` y `formatBearing` (grados o cuadrantes).
+- Demo: botones de círculo y rectángulo, etiquetas por segmento y ángulo con interruptor y detalle
+  del elemento seleccionado.
+
+### Cambiado
+
+- `Tool` y `Kind` suman `circle` y `rectangle`: un `switch` exhaustivo sobre `kind` deja de compilar.
+- `measureGeometry` acepta el `kind` como tercer argumento.
+- Círculo y rectángulo se mueven pero no se editan por vértice.
+
 ## [0.3.0] - 2026-10-13
 
 ### Agregado

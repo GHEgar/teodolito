@@ -28,7 +28,8 @@ export function ElevationPanel({ source, onSource }: { source: ProviderKey; onSo
     const target = item && item.kind !== 'text' ? item.id : null;
     const { status, elevation, error, refresh } = useElevation(target, providers[source].provider);
     if (!target || !item) return null;
-    const kind: Elevation['kind'] = item.kind === 'point' ? 'point' : item.kind === 'polygon' ? 'surface' : 'profile';
+    const kind: Elevation['kind'] = item.kind === 'point' ? 'point'
+        : item.kind === 'line' || item.kind === 'freehand' ? 'profile' : 'surface';
     return (
         <section className="profile" data-testid={kind === 'profile' ? 'profile' : kind} aria-busy={status === 'loading'}>
             <header>

@@ -136,3 +136,31 @@ test('muestra el relieve de un área y la altura de un punto', async ({ page }) 
     await page.mouse.click(c.x + 250, c.y);
     await expect(page.getByTestId('point-elevation')).toHaveText(/^[\d,]+ m$/);
 });
+
+test('traza un círculo y un rectángulo con sus medidas por segmento', async ({ page }) => {
+    const c = await center(page);
+    await page.getByRole('button', { name: 'Círculo' }).click();
+    await clickAt(page, c.x - 150, c.y);
+    await page.mouse.move(c.x - 100, c.y, { steps: 4 });
+    await expect(page.getByTestId('sketch')).toHaveText(/m²|ha|km²/);
+    await clickAt(page, c.x - 50, c.y);
+    await expect(items(page)).toHaveCount(1);
+    await expect(items(page).first().locator('.kind')).toHaveText('Círculo');
+    await items(page).first().locator('.pick').click();
+    const radius = page.getByTestId('radius');
+    await expect(radius).toHaveText(/^Radio [\d,.]+ (m|km)$/);
+    const before = await radius.textContent();
+    await page.mouse.move(c.x - 150 + 60, c.y);
+    await page.mouse.down();
+    await page.mouse.move(c.x - 150 + 60, c.y + 100, { steps: 8 });
+    await page.mouse.up();
+    await expect(radius).toHaveText(before ?? '');
+    await page.getByRole('button', { name: 'Rectángulo' }).click();
+    await clickAt(page, c.x + 50, c.y - 80);
+    await clickAt(page, c.x + 250, c.y + 40);
+    await expect(items(page)).toHaveCount(2);
+    await items(page).nth(1).locator('.pick').click();
+    await expect(page.getByTestId('sides')).toHaveText(/× /);
+    await expect(page.getByTestId('segments').locator('li')).toHaveCount(4);
+    await expect(page.getByTestId('segments').locator('li').first()).toContainText('∠ 90');
+});

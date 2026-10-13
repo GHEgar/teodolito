@@ -4,7 +4,7 @@ import type Style from 'ol/style/Style.js';
 import type { FormatOptions, Units } from './format.js';
 import type { Measure } from './measure.js';
 
-export type Tool = 'line' | 'polygon' | 'point' | 'freehand' | 'text';
+export type Tool = 'line' | 'polygon' | 'point' | 'freehand' | 'text' | 'circle' | 'rectangle';
 export type Kind = Tool;
 export type Props = Readonly<Record<string, unknown>>;
 
@@ -56,6 +56,7 @@ export interface TeodolitoOptions {
     locale?: string;
     format?: Omit<FormatOptions, 'units' | 'locale'>;
     defaultProps?: (kind: Kind) => Props;
+    circleSides?: number;
     once?: boolean;
     snap?: boolean;
     snapTolerance?: number;

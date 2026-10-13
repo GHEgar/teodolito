@@ -76,3 +76,25 @@ export function formatMeasure(measure: Measure, options: FormatOptions = {}): st
 export function formatElevation(meters: number, options: FormatOptions = {}): string {
     return `${number(meters, { ...options, maximumFractionDigits: options.maximumFractionDigits ?? 0 })} m`;
 }
+
+export interface AngleFormatOptions {
+    locale?: string;
+    maximumFractionDigits?: number;
+}
+
+const degreesText = (value: number, options: AngleFormatOptions): string => `${number(value, {
+    ...options, maximumFractionDigits: options.maximumFractionDigits ?? 1,
+})}°`;
+
+export function formatAngle(degrees: number, options: AngleFormatOptions = {}): string {
+    return degreesText(degrees, options);
+}
+
+export function formatBearing(degrees: number, options: AngleFormatOptions & { style?: 'degrees' | 'quadrant' } = {}): string {
+    const value = ((degrees % 360) + 360) % 360;
+    if (options.style !== 'quadrant') return degreesText(value, options);
+    if (value <= 90) return `N ${degreesText(value, options)} E`;
+    if (value <= 180) return `S ${degreesText(180 - value, options)} E`;
+    if (value <= 270) return `S ${degreesText(value - 180, options)} W`;
+    return `N ${degreesText(360 - value, options)} W`;
+}

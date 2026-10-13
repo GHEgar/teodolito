@@ -28,8 +28,10 @@ t.subscribe(() => console.log(t.getSnapshot().items));
 
 | Feature | API |
 |---|---|
-| Tools: line, polygon, point, freehand, text | `setTool(tool \| null)`, `once` option |
+| Tools: line, polygon, circle, rectangle, point, freehand, text | `setTool(tool \| null)`, `once`, `circleSides` options |
 | Geodesic measures (length, area, perimeter, lon/lat) | `item.measure`, `measureGeometry()` |
+| Per-segment length and bearing, vertex angles | `measure.segments`, `measure.angles` |
+| Circle center and radius, rectangle width and height | `measure.shape` |
 | Units `auto`/m/km and `auto`/m²/ha/km² with `Intl` | `setUnits()`, `format()`, `formatMeasure()` |
 | Live measure while drawing | `snapshot.drawing`, `snapshot.sketch` |
 | Select, move (Translate), edit vertices (Modify), snap | click on the map, `select(id)`, `snap` option |
@@ -42,6 +44,15 @@ t.subscribe(() => console.log(t.getSnapshot().items));
 | Keyboard: Esc, Ctrl+Z, Ctrl+Shift+Z/Ctrl+Y, Delete | `keyboard: false` to opt out, `escape()` to wire your own stack |
 | Events | `onEvent({ type, ... })` |
 
+Circles are geodesic polygons built from a center and a radius in meters; rectangles are axis-aligned
+boxes from two corners. Both are stored as `Polygon`, so they measure, serialize and take elevation
+like any polygon. They can be moved; resizing and rotating are not there yet.
+
+Lines, polygons and rectangles carry `segments` (`length`, geodesic `bearing` 0–360°, `midpoint` in the
+map projection) and `angles` (`vertex`, `degrees`, `coordinate`): interior angles for polygons whatever
+the ring winding, the angle between both segments for lines. Freehand strokes and circles leave them
+empty. `formatAngle()` and `formatBearing(deg, { style: 'quadrant' })` (`N 45° E`) format them.
+
 Escape unwinds one step at a time: abort the sketch, cancel the text, clear the selection, drop the tool.
 While drawing, Ctrl+Z and Delete remove the last vertex.
 
@@ -51,7 +62,7 @@ Your style function gets `(feature, context)`:
 
 | Field | Meaning |
 |---|---|
-| `kind` | `line`, `polygon`, `point`, `freehand` or `text` |
+| `kind` | `line`, `polygon`, `circle`, `rectangle`, `point`, `freehand` or `text` |
 | `measure`, `label` | the raw measure and its formatted text (the text itself for `text`) |
 | `text`, `props` | the item's text and your own props |
 | `selected`, `editing` | selection and text editing state |

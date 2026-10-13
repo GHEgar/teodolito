@@ -1,13 +1,14 @@
 import Collection from 'ol/Collection.js';
 import type Feature from 'ol/Feature.js';
 import type Geometry from 'ol/geom/Geometry.js';
-import Draw from 'ol/interaction/Draw.js';
+import Draw, { createBox } from 'ol/interaction/Draw.js';
 import Modify from 'ol/interaction/Modify.js';
 import Snap from 'ol/interaction/Snap.js';
 import Translate from 'ol/interaction/Translate.js';
 import type OlMap from 'ol/Map.js';
 import type VectorSource from 'ol/source/Vector.js';
 import type { StyleLike } from 'ol/style/Style.js';
+import { circleGeometry } from './shapes.js';
 import type { Tool } from './types.js';
 
 const drawTypes = {
@@ -16,10 +17,16 @@ const drawTypes = {
     point: 'Point',
     freehand: 'LineString',
     text: 'Point',
+    circle: 'Circle',
+    rectangle: 'Circle',
 } as const;
 
-export function createDraw(tool: Tool, style: StyleLike): Draw {
-    return new Draw({ type: drawTypes[tool], freehand: tool === 'freehand', style, stopClick: true });
+export function createDraw(tool: Tool, style: StyleLike, circleSides = 64): Draw {
+    const geometryFunction = tool === 'circle' ? circleGeometry(circleSides) : tool === 'rectangle' ? createBox() : undefined;
+    return new Draw({
+        type: drawTypes[tool], freehand: tool === 'freehand', style, stopClick: true,
+        ...(geometryFunction ? { geometryFunction } : {}),
+    });
 }
 
 export interface EditingOptions {
@@ -31,15 +38,16 @@ export interface EditingOptions {
 }
 
 export interface Editing {
-    selection: Collection<Feature<Geometry>>;
+    select(feature: Feature<Geometry> | null, vertices: boolean): void;
     raiseSnap(): void;
     dispose(): void;
 }
 
 export function createEditing(map: OlMap, source: VectorSource<Feature<Geometry>>, options: EditingOptions): Editing {
     const selection = new Collection<Feature<Geometry>>();
+    const editable = new Collection<Feature<Geometry>>();
     const translate = new Translate({ features: selection });
-    const modify = new Modify({ features: selection, ...(options.vertexStyle ? { style: options.vertexStyle } : {}) });
+    const modify = new Modify({ features: editable, ...(options.vertexStyle ? { style: options.vertexStyle } : {}) });
     const snap = options.snap ? new Snap({ source, pixelTolerance: options.snapTolerance }) : null;
 
     translate.on('translatestart', (event) => options.onStart(event.features.getArray()));
@@ -52,7 +60,13 @@ export function createEditing(map: OlMap, source: VectorSource<Feature<Geometry>
     if (snap) map.addInteraction(snap);
 
     return {
-        selection,
+        select(feature, vertices) {
+            selection.clear();
+            editable.clear();
+            if (!feature) return;
+            selection.push(feature);
+            if (vertices) editable.push(feature);
+        },
         raiseSnap() {
             if (!snap) return;
             map.removeInteraction(snap);
@@ -63,6 +77,7 @@ export function createEditing(map: OlMap, source: VectorSource<Feature<Geometry>
             map.removeInteraction(modify);
             if (snap) map.removeInteraction(snap);
             selection.clear();
+            editable.clear();
         },
     };
 }

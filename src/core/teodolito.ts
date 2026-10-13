@@ -86,9 +86,8 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         const previous = store.get().selectedId;
         const next = id && registry.item(id) ? id : null;
         if (previous === next) return;
-        editing.selection.clear();
-        const feature = next ? registry.feature(next) : undefined;
-        if (feature) editing.selection.push(feature);
+        const kind = next ? registry.item(next)?.kind : undefined;
+        editing.select((next && registry.feature(next)) || null, kind !== 'circle' && kind !== 'rectangle');
         store.set({ selectedId: next });
         refresh(previous);
         refresh(next);
@@ -142,7 +141,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         const id = newId();
         ops.insert({
             feature,
-            item: { id, kind: tool, measure: measureGeometry(geometry, projection()), text: '', props: defaultProps(tool), visible: true },
+            item: { id, kind: tool, measure: measureGeometry(geometry, projection(), tool), text: '', props: defaultProps(tool), visible: true },
             index: Number.POSITIVE_INFINITY,
         });
         if (tool === 'text') text.begin(id, true);
@@ -158,7 +157,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         store.set({ tool, drawing: false, sketch: null });
         if (tool) {
             drawing = startDrawing({
-                map, tool, projection,
+                map, tool, projection, circleSides: options.circleSides ?? 64,
                 style: sketchStyle(styling),
                 onSketch: (sketch) => store.set({ sketch, drawing: sketch !== null }),
                 onEnd: (feature) => onDrawEnd(tool, feature),
@@ -249,7 +248,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
                 const geometry = parsed.feature.getGeometry() as Geometry;
                 const id = parsed.id && !registry.item(parsed.id) ? parsed.id : newId();
                 registry.insert(parsed.feature, {
-                    id, kind: parsed.kind, measure: measureGeometry(geometry, projection()),
+                    id, kind: parsed.kind, measure: measureGeometry(geometry, projection(), parsed.kind),
                     text: parsed.text, props: parsed.props, visible: parsed.visible,
                 });
             });

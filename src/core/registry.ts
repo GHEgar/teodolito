@@ -67,7 +67,7 @@ export function createRegistry(source: VectorSource<Feature<Geometry>>, publish:
             const item = items.get(id);
             if (!geometry || !item || revisions.get(id) === geometry.getRevision()) return false;
             revisions.set(id, geometry.getRevision());
-            items.set(id, { ...item, measure: measureGeometry(geometry, projection) });
+            items.set(id, { ...item, measure: measureGeometry(geometry, projection, item.kind) });
             emit();
             return true;
         },

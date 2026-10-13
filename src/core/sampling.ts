@@ -17,7 +17,7 @@ const radians = (degrees: number): number => (degrees * Math.PI) / 180;
 const degrees = (value: number): number => (value * 180) / Math.PI;
 const distance = (a: LonLat, b: LonLat): number => getDistance([a[0], a[1]], [b[0], b[1]]);
 
-function unit([lon, lat]: LonLat): [number, number, number] {
+export function unit([lon, lat]: LonLat): [number, number, number] {
     const phi = radians(lat);
     const lambda = radians(lon);
     return [Math.cos(phi) * Math.cos(lambda), Math.cos(phi) * Math.sin(lambda), Math.sin(phi)];

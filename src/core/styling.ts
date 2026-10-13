@@ -49,7 +49,7 @@ export function sketchStyle(deps: StylingDeps): OlStyleFunction {
         if (!deps.style) return editing[type];
         const vertex = type === 'Point' && kind !== 'point' && kind !== 'text';
         const measure: Measure = 'getRevision' in geometry
-            ? measureGeometry(geometry, deps.projection())
+            ? measureGeometry(geometry, deps.projection(), kind)
             : { kind: 'none' };
         const context: StyleContext = {
             kind,

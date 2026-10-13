@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { useTeodolito } from 'teodolito/react';
 import type { Tool } from 'teodolito';
 import { Icon, type IconName } from './icons';
+import { showDetails, setShowDetails } from './style';
 
 const tools: { tool: Tool | null; icon: IconName; label: string }[] = [
     { tool: null, icon: 'pointer', label: 'Seleccionar' },
     { tool: 'line', icon: 'line', label: 'Distancia' },
     { tool: 'polygon', icon: 'polygon', label: 'Área' },
+    { tool: 'circle', icon: 'circle', label: 'Círculo' },
+    { tool: 'rectangle', icon: 'rectangle', label: 'Rectángulo' },
     { tool: 'point', icon: 'point', label: 'Punto' },
     { tool: 'freehand', icon: 'freehand', label: 'Mano alzada' },
     { tool: 'text', icon: 'text', label: 'Texto' },
@@ -13,6 +17,12 @@ const tools: { tool: Tool | null; icon: IconName; label: string }[] = [
 
 export function Toolbar() {
     const t = useTeodolito();
+    const [details, setDetails] = useState(showDetails);
+    const toggleDetails = () => {
+        setShowDetails(!details);
+        setDetails(!details);
+        t.instance.layer.changed();
+    };
     return (
         <div className="toolbar" role="toolbar" aria-label="Herramientas">
             {tools.map(({ tool, icon, label }) => (
@@ -22,6 +32,10 @@ export function Toolbar() {
                 </button>
             ))}
             <span className="sep" />
+            <button type="button" className="tool" title="Segmentos y ángulos" aria-label="Segmentos y ángulos"
+                aria-pressed={details} onClick={toggleDetails}>
+                <Icon name="angle" />
+            </button>
             <button type="button" className="tool" title="Deshacer" aria-label="Deshacer"
                 disabled={!t.canUndo} onClick={() => t.undo()}>
                 <Icon name="undo" />

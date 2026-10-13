@@ -25,7 +25,7 @@ export interface Parsed {
     visible: boolean;
 }
 
-const kinds: readonly Kind[] = ['line', 'polygon', 'point', 'freehand', 'text'];
+const kinds: readonly Kind[] = ['line', 'polygon', 'point', 'freehand', 'text', 'circle', 'rectangle'];
 
 const options = (projection: ProjectionLike) => ({ dataProjection: 'EPSG:4326', featureProjection: projection });
 

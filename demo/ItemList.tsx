@@ -1,10 +1,12 @@
 import type { AreaUnit, Item, LengthUnit } from 'teodolito';
 import { useTeodolito } from 'teodolito/react';
+import { Details } from './Details';
 import { Icon } from './icons';
 import { swatches } from './style';
 
 const names: Record<Item['kind'], string> = {
     line: 'Distancia', polygon: 'Área', point: 'Punto', freehand: 'Trazo', text: 'Texto',
+    circle: 'Círculo', rectangle: 'Rectángulo',
 };
 
 function download(data: unknown): void {
@@ -54,6 +56,7 @@ export function ItemList() {
                             onClick={(e) => { e.stopPropagation(); t.remove(item.id); }}>
                             <Icon name="trash" />
                         </button>
+                        {t.selectedId === item.id && <Details item={item} />}
                     </li>
                 ))}
             </ul>

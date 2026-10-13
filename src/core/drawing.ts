@@ -14,6 +14,7 @@ export interface DrawingOptions {
     map: OlMap;
     tool: Tool;
     style: StyleLike;
+    circleSides: number;
     projection(): ProjectionLike;
     onSketch(measure: Measure | null): void;
     onEnd(feature: Feature<Geometry>): void;
@@ -25,7 +26,7 @@ export interface Drawing {
 }
 
 export function startDrawing(options: DrawingOptions): Drawing {
-    const draw = createDraw(options.tool, options.style);
+    const draw = createDraw(options.tool, options.style, options.circleSides);
     let geometryKey: EventsKey | null = null;
 
     const release = (): void => {
@@ -36,9 +37,9 @@ export function startDrawing(options: DrawingOptions): Drawing {
     draw.on('drawstart', (event) => {
         const geometry = event.feature.getGeometry();
         if (!geometry) return;
-        options.onSketch(measureGeometry(geometry, options.projection()));
+        options.onSketch(measureGeometry(geometry, options.projection(), options.tool));
         geometryKey = geometry.on('change', () => {
-            options.onSketch(measureGeometry(geometry, options.projection()));
+            options.onSketch(measureGeometry(geometry, options.projection(), options.tool));
         });
     });
     draw.on('drawend', (event) => {
