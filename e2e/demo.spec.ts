@@ -15,7 +15,7 @@ async function clickAt(page: Page, x: number, y: number) {
 }
 
 test.beforeEach(async ({ page }) => {
-    await page.route(/tile\.openstreetmap\.org/, (route) => route.abort());
+    await page.route(/tile\.openstreetmap\.org|elevation-tiles-prod/, (route) => route.abort());
     await page.goto('/');
     await page.getByRole('toolbar').waitFor();
 });
@@ -116,4 +116,23 @@ test('muestra el perfil de alturas de la línea seleccionada y lo recalcula al e
     await expect(profile).toHaveAttribute('aria-busy', 'false');
     await page.getByRole('button', { name: 'Deshacer' }).click();
     await expect(ascent).toHaveText(before ?? '');
+});
+
+test('muestra el relieve de un área y la altura de un punto', async ({ page }) => {
+    const c = await center(page);
+    await page.getByRole('button', { name: 'Área' }).click();
+    await clickAt(page, c.x - 100, c.y - 100);
+    await clickAt(page, c.x + 100, c.y - 100);
+    await clickAt(page, c.x + 100, c.y + 100);
+    await page.mouse.dblclick(c.x - 100, c.y + 100);
+    await page.getByRole('button', { name: 'Seleccionar' }).click();
+    await page.mouse.click(c.x, c.y);
+    await expect(page.getByTestId('surface')).toHaveAttribute('aria-busy', 'false');
+    await expect(page.getByTestId('surface-max')).toHaveText(/^[\d,]+ m$/);
+    await expect(page.getByRole('img', { name: 'Curva hipsométrica' })).toBeVisible();
+    await page.getByRole('button', { name: 'Punto' }).click();
+    await clickAt(page, c.x + 250, c.y);
+    await page.getByRole('button', { name: 'Seleccionar' }).click();
+    await page.mouse.click(c.x + 250, c.y);
+    await expect(page.getByTestId('point-elevation')).toHaveText(/^[\d,]+ m$/);
 });

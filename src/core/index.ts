@@ -12,8 +12,18 @@ export {
     resolveAreaUnit,
     resolveLengthUnit,
 } from './format.js';
-export { computeProfile, requestElevations } from './elevation.js';
-export type { ElevationProvider, ElevationRequest, ProfileOptions } from './elevation.js';
+export {
+    computeElevation, computeProfile, computeSurface, getPointElevation, requestElevations,
+} from './elevation.js';
+export type {
+    Elevation, ElevationOptions, ElevationProvider, ElevationRequest, ProfileOptions, SurfaceComputeOptions,
+} from './elevation.js';
+export { buildGrid, buildSurface, inPolygon } from './surface.js';
+export type { Grid, HypsometryStep, Ring, Spot, Surface, SurfaceOptions } from './surface.js';
+export { createTerrainRgbProvider, decodeImage, decoders } from './terrain-rgb.js';
+export type { Decoder, TerrainRgbOptions, TileData } from './terrain-rgb.js';
+export { cachedElevation } from './cache.js';
+export type { CacheOptions } from './cache.js';
 export { buildProfile } from './profile.js';
 export type { Extreme, Profile, ProfilePoint } from './profile.js';
 export { interpolate, sampleLine } from './sampling.js';

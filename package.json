@@ -1,6 +1,6 @@
 {
     "name": "teodolito",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Headless measuring and drawing tools for OpenLayers: geodesic measures, vertex editing, undo/redo and GeoJSON.",
     "license": "AGPL-3.0-only",
     "author": "Edgar Villarreal",

@@ -91,6 +91,35 @@ profile.ascent;
 Missing heights stay as `null` in `points`; the statistics bridge the gaps between known heights.
 Profiles cover lines and freehand strokes.
 
+### Areas and points
+
+| Piece | What it does |
+|---|---|
+| `computeSurface(polygon, provider, { cells, hypsometrySteps })` | samples a `cells × cells` grid over the polygon (holes respected) plus its vertices: `planarArea`, `surfaceArea`, `min`, `max`, `mean`, `hypsometry`, `samples`, `missing` |
+| `getPointElevation(point, provider)` | the height of one point, or `null` |
+| `computeElevation(geometry, provider, options)` | `{ kind: 'point' \| 'profile' \| 'surface', ... }` by geometry type |
+
+`surfaceArea` scales the exact geodesic area by the ratio between the 3D and flat area of the grid
+cells, so it always agrees with `measure.area` on flat ground. `hypsometry[i].share` is the fraction of
+the area above `hypsometry[i].elevation`.
+
+### Terrain-RGB tiles
+
+```ts
+import { cachedElevation, createTerrainRgbProvider } from 'teodolito';
+
+const provider = cachedElevation(createTerrainRgbProvider({
+    url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+    zoom: 12,
+    encoding: 'terrarium',
+    interpolate: true,
+}));
+```
+
+`encoding` is `'mapbox'`, `'terrarium'` or your own `(r, g, b, a) => number | null`. Each tile is fetched
+once and kept in a bounded cache (`maxTiles`, 64); an aborted request never poisons it. Tiles are decoded
+with `createImageBitmap` and a canvas on first use; pass `decode` to run elsewhere, `fetch` to add headers.
+
 ## React
 
 ```tsx
@@ -114,6 +143,9 @@ returns the text being edited with its map coordinate, `commit` and `cancel`.
 ```tsx
 const { status, profile, error, refresh } = useProfile(selectedId, provider, { debounce: 250 });
 ```
+
+`useElevation(id, provider, options)` does the same for points, lines and polygons and returns
+`{ status, elevation, error, refresh }`; `kinds` narrows the geometries it accepts.
 
 `useProfile` follows the item's geometry: edits, undo and redo recompute it after the debounce and abort
 the previous request. While loading it keeps the last profile of the same item. Keep `provider` stable.

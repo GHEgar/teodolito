@@ -8,7 +8,8 @@ import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { TeodolitoProvider, useCreateTeodolito } from 'teodolito/react';
 import { ItemList } from './ItemList';
-import { ProfilePanel } from './ProfilePanel';
+import { ElevationPanel } from './ElevationPanel';
+import type { ProviderKey } from './elevation';
 import { demoStyle, swatches } from './style';
 import { TextEditor } from './TextEditor';
 import { Toolbar } from './Toolbar';
@@ -16,6 +17,7 @@ import { Toolbar } from './Toolbar';
 function App() {
     const target = useRef<HTMLDivElement>(null);
     const [map, setMap] = useState<OlMap | null>(null);
+    const [source, setSource] = useState<ProviderKey>('synthetic');
 
     useEffect(() => {
         if (!target.current) return undefined;
@@ -43,7 +45,7 @@ function App() {
                     <>
                         <Toolbar />
                         <ItemList />
-                        <ProfilePanel />
+                        <ElevationPanel source={source} onSource={setSource} />
                         <TextEditor map={map} />
                     </>
                 )}

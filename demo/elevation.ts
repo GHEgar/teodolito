@@ -1,4 +1,4 @@
-import type { ElevationProvider, LonLat } from 'teodolito';
+import { cachedElevation, createTerrainRgbProvider, type ElevationProvider, type LonLat } from 'teodolito';
 
 const terrain = ([lon, lat]: LonLat): number => {
     const x = (lon + 103.35) * 60;
@@ -18,3 +18,17 @@ export const syntheticElevation: ElevationProvider = {
         return points.map(terrain);
     },
 };
+
+export const terrarium: ElevationProvider = cachedElevation(createTerrainRgbProvider({
+    url: 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png',
+    zoom: 12,
+    encoding: 'terrarium',
+    interpolate: true,
+}));
+
+export const providers = {
+    synthetic: { name: 'Sintético', provider: syntheticElevation },
+    terrarium: { name: 'Terrarium (AWS)', provider: terrarium },
+} as const;
+
+export type ProviderKey = keyof typeof providers;

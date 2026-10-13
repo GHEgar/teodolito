@@ -5,6 +5,24 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [No publicado]
 
+## [0.3.0] - 2026-10-13
+
+### Agregado
+
+- `computeSurface`: relieve de un polígono sobre una rejilla, con agujeros: área plana y sobre el
+  relieve, máxima, mínima, media, curva hipsométrica y alturas faltantes.
+- `getPointElevation` y `computeElevation`, que despacha según la geometría (punto, línea, polígono).
+- `createTerrainRgbProvider`: teselas de elevación en RGB con codificación `mapbox`, `terrarium` o
+  propia, interpolación bilineal opcional, una petición por tesela y caché con límite.
+- `cachedElevation`: caché de alturas por coordenada para cualquier proveedor.
+- `teodolito/react`: `useElevation` para punto, línea, mano alzada y polígono.
+- Demo: relieve del área con curva hipsométrica, altura del punto y selector entre el proveedor
+  sintético y Terrarium de AWS.
+
+### Cambiado
+
+- `useProfile` se apoya en `useElevation`; su API no cambia.
+
 ## [0.2.0] - 2026-10-13
 
 ### Agregado
