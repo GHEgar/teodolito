@@ -8,6 +8,7 @@ import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { TeodolitoProvider, useCreateTeodolito } from 'teodolito/react';
 import { ItemList } from './ItemList';
+import { ProfilePanel } from './ProfilePanel';
 import { demoStyle, swatches } from './style';
 import { TextEditor } from './TextEditor';
 import { Toolbar } from './Toolbar';
@@ -42,6 +43,7 @@ function App() {
                     <>
                         <Toolbar />
                         <ItemList />
+                        <ProfilePanel />
                         <TextEditor map={map} />
                     </>
                 )}

@@ -5,6 +5,20 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [No publicado]
 
+## [0.2.0] - 2026-10-13
+
+### Agregado
+
+- Perfil de alturas: interfaz `ElevationProvider` inyectable, con lotes según `maxPoints` y cancelación
+  con `AbortSignal`.
+- `sampleLine`: muestreo geodésico sobre el gran círculo que conserva los vértices y respeta
+  `maxSamples`; `interpolate` para puntos intermedios.
+- `buildProfile` y `computeProfile`: distancia contra altura, longitud sobre el relieve, subida,
+  bajada, desnivel, máximo, mínimo y alturas faltantes.
+- `formatElevation`.
+- `teodolito/react`: `useProfile` con debounce, abort y recálculo al editar, deshacer o rehacer.
+- Demo: panel de perfil con gráfica SVG propia y un proveedor de elevación sintético.
+
 ### Cambiado
 
 - El lint usa `@ghegar/eslint-config` (presets `base`, `react` y `ts`) en lugar de una config propia.

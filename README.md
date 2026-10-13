@@ -60,6 +60,37 @@ Your style function gets `(feature, context)`:
 
 Without a style function teodolito falls back to OpenLayers' default styles.
 
+## Elevation profile
+
+teodolito samples a line and asks your `ElevationProvider` for the heights; it ships no DEM.
+
+```ts
+import { computeProfile, type ElevationProvider } from 'teodolito';
+
+const provider: ElevationProvider = {
+    maxPoints: 200,
+    async getElevations(points, { signal }) {
+        const response = await fetch('/elevation', { method: 'POST', body: JSON.stringify(points), signal });
+        return response.json();
+    },
+};
+
+const profile = await computeProfile(lineString, provider, { projection: 'EPSG:3857' });
+profile.points;
+profile.ascent;
+```
+
+| Piece | What it does |
+|---|---|
+| `sampleLine(lonLats, { step, maxSamples })` | samples along great circles, always keeping the vertices; never more than `maxSamples` (512) |
+| `ElevationProvider` | `getElevations(points, { signal })` returns one height or `null` per point; `maxPoints` splits the request in batches |
+| `buildProfile(samples, elevations)` | distance against elevation plus `length`, `surfaceLength`, `ascent`, `descent`, `netChange`, `max`, `min`, `missing` |
+| `computeProfile(lineString, provider, options)` | all of the above for a projected `LineString`, abortable with `signal` |
+| `formatElevation(meters, { locale })` | `1,523 m` |
+
+Missing heights stay as `null` in `points`; the statistics bridge the gaps between known heights.
+Profiles cover lines and freehand strokes.
+
 ## React
 
 ```tsx
@@ -79,6 +110,13 @@ function Toolbar() {
 
 `useMeasurement(id)` reads one item and keeps its reference while it does not change. `useTextEditor()`
 returns the text being edited with its map coordinate, `commit` and `cancel`.
+
+```tsx
+const { status, profile, error, refresh } = useProfile(selectedId, provider, { debounce: 250 });
+```
+
+`useProfile` follows the item's geometry: edits, undo and redo recompute it after the debounce and abort
+the previous request. While loading it keeps the last profile of the same item. Keep `provider` stable.
 
 ## License
 

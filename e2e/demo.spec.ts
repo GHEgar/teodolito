@@ -91,3 +91,29 @@ test('traza a mano alzada', async ({ page }) => {
     await expect(items(page)).toHaveCount(1);
     await expect(items(page).first().locator('.kind')).toHaveText('Trazo');
 });
+
+test('muestra el perfil de alturas de la línea seleccionada y lo recalcula al editar', async ({ page }) => {
+    const c = await center(page);
+    await page.getByRole('button', { name: 'Distancia' }).click();
+    await clickAt(page, c.x - 150, c.y);
+    await page.mouse.dblclick(c.x + 150, c.y);
+    await expect(page.getByTestId('profile')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Seleccionar' }).click();
+    await page.mouse.click(c.x, c.y);
+    const profile = page.getByTestId('profile');
+    await expect(profile).toHaveAttribute('aria-busy', 'false');
+    await expect(page.getByTestId('max')).toHaveText(/^[\d,]+ m$/);
+    const ascent = page.getByTestId('ascent');
+    const before = await ascent.textContent();
+    const chart = page.getByRole('img', { name: 'Perfil de alturas' });
+    await chart.hover();
+    await expect(page.getByTestId('profile-readout')).toHaveText(/(m|km) · [\d,]+ m$/);
+    await page.mouse.move(c.x + 150, c.y);
+    await page.mouse.down();
+    await page.mouse.move(c.x + 250, c.y - 120, { steps: 8 });
+    await page.mouse.up();
+    await expect(ascent).not.toHaveText(before ?? '');
+    await expect(profile).toHaveAttribute('aria-busy', 'false');
+    await page.getByRole('button', { name: 'Deshacer' }).click();
+    await expect(ascent).toHaveText(before ?? '');
+});

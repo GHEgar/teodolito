@@ -72,3 +72,7 @@ export function formatMeasure(measure: Measure, options: FormatOptions = {}): st
             return '';
     }
 }
+
+export function formatElevation(meters: number, options: FormatOptions = {}): string {
+    return `${number(meters, { ...options, maximumFractionDigits: options.maximumFractionDigits ?? 0 })} m`;
+}

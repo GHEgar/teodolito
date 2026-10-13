@@ -2,3 +2,5 @@ export { TeodolitoProvider, useOptionalTeodolitoInstance, useTeodolitoInstance }
 export type { TeodolitoProviderProps } from './context.js';
 export { useCreateTeodolito, useMeasurement, useSnapshot, useTeodolito, useTextEditor } from './hooks.js';
 export type { TeodolitoActions, TextEditor, UseTeodolito } from './hooks.js';
+export { useProfile } from './profile.js';
+export type { ProfileResult, ProfileStatus, UseProfileOptions } from './profile.js';
