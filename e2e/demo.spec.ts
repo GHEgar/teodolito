@@ -56,7 +56,7 @@ test('mueve un vértice y la medida se actualiza; deshacer la regresa', async ({
     const before = await value.textContent();
     await page.getByRole('button', { name: 'Seleccionar' }).click();
     await page.mouse.click(c.x, c.y);
-    await expect(items(page).first()).toHaveAttribute('aria-selected', 'true');
+    await expect(items(page).first()).toHaveAttribute('aria-current', 'true');
     await page.mouse.move(c.x + 100, c.y);
     await page.mouse.down();
     await page.mouse.move(c.x + 200, c.y, { steps: 8 });
@@ -76,7 +76,7 @@ test('escribe un texto y lo borra con Supr', async ({ page }) => {
     await expect(items(page).first().locator('.value')).toHaveText('Cerro del Cuatro');
     await page.keyboard.press('Escape');
     await expect(page.getByRole('button', { name: 'Seleccionar' })).toHaveAttribute('aria-pressed', 'true');
-    await items(page).first().click();
+    await items(page).first().locator('.pick').click();
     await page.keyboard.press('Delete');
     await expect(items(page)).toHaveCount(0);
 });

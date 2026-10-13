@@ -40,12 +40,16 @@ body { margin: 0; background: #f8fafc; }
 .units select { border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; background: var(--paper); }
 .panel ul { list-style: none; margin: 0; padding: 0 8px; overflow: auto; }
 .panel li {
-    display: grid; grid-template-columns: 1fr auto auto; grid-template-areas: 'kind eye del' 'value eye del' 'sw eye del';
-    gap: 2px 4px; padding: 8px; border-radius: 12px; cursor: pointer;
+    display: grid; grid-template-columns: 1fr auto auto; grid-template-areas: 'pick eye del' 'sw eye del';
+    gap: 2px 4px; padding: 8px; border-radius: 12px;
 }
-.panel li[aria-selected='true'] { background: #f1f5f9; }
-.kind { grid-area: kind; font-size: 12px; color: var(--muted); }
-.value { grid-area: value; font-weight: 600; font-variant-numeric: tabular-nums; }
+.panel li[aria-current='true'] { background: #f1f5f9; }
+.pick {
+    grid-area: pick; display: grid; gap: 2px; padding: 0; border: 0; background: transparent;
+    font: inherit; color: inherit; text-align: left; cursor: pointer;
+}
+.kind { font-size: 12px; color: var(--muted); }
+.value { font-weight: 600; font-variant-numeric: tabular-nums; }
 .swatches { grid-area: sw; display: flex; gap: 4px; margin-top: 4px; }
 .swatches button { width: 14px; height: 14px; border: 0; border-radius: 999px; cursor: pointer; }
 .icon { border: 0; background: transparent; color: var(--muted); cursor: pointer; border-radius: 999px; padding: 6px; }

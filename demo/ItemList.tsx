@@ -34,9 +34,12 @@ export function ItemList() {
             </header>
             <ul data-testid="items">
                 {t.items.map((item) => (
-                    <li key={item.id} aria-selected={t.selectedId === item.id} onClick={() => t.select(item.id)}>
-                        <span className="kind">{names[item.kind]}</span>
-                        <span className="value">{item.kind === 'text' ? item.text : t.format(item.measure)}</span>
+                    <li key={item.id} aria-current={t.selectedId === item.id ? 'true' : undefined}>
+                        <button type="button" className="pick" aria-pressed={t.selectedId === item.id}
+                            onClick={() => t.select(item.id)}>
+                            <span className="kind">{names[item.kind]}</span>
+                            <span className="value">{item.kind === 'text' ? item.text : t.format(item.measure)}</span>
+                        </button>
                         <span className="swatches">
                             {swatches.map((color) => (
                                 <button key={color} type="button" aria-label={`Color ${color}`} style={{ background: color }}

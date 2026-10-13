@@ -1,10 +1,11 @@
 import type OlMap from 'ol/Map.js';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTextEditor } from 'teodolito/react';
 
 export function TextEditor({ map }: { map: OlMap }) {
     const editor = useTextEditor();
     const [pixel, setPixel] = useState<number[] | null>(null);
+    const input = useRef<HTMLInputElement>(null);
     const coordinate = editor?.coordinate ?? null;
 
     useEffect(() => {
@@ -15,9 +16,15 @@ export function TextEditor({ map }: { map: OlMap }) {
         return () => map.un('postrender', place);
     }, [map, coordinate]);
 
+    const editing = editor?.id;
+    const placed = pixel !== null;
+    useEffect(() => {
+        if (editing && placed) input.current?.focus();
+    }, [editing, placed]);
+
     if (!editor || !pixel) return null;
     return (
-        <input key={editor.id} className="text-editor" aria-label="Texto" autoFocus defaultValue={editor.value}
+        <input key={editor.id} className="text-editor" ref={input} aria-label="Texto" defaultValue={editor.value}
             style={{ left: pixel[0], top: pixel[1] }}
             onKeyDown={(e) => {
                 if (e.key === 'Enter') editor.commit(e.currentTarget.value);

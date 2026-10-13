@@ -5,6 +5,15 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ## [No publicado]
 
+### Cambiado
+
+- El lint usa `@ghegar/eslint-config` (presets `base`, `react` y `ts`) en lugar de una config propia.
+
+### Corregido
+
+- Demo: cada elemento de la lista se selecciona con un botón y marca la selección con `aria-current`,
+  en lugar de un `<li>` clickeable con `aria-selected`; el editor de texto toma el foco desde un efecto.
+
 ## [0.1.0] - 2026-10-09
 
 ### Agregado
