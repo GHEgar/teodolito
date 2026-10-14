@@ -50,7 +50,7 @@ export async function requestElevations(
         const batch = points.slice(start, start + size);
         const elevations = await provider.getElevations(batch, request);
         if (elevations.length !== batch.length) {
-            throw new Error(`teodolito: el proveedor devolvió ${elevations.length} alturas para ${batch.length} puntos.`);
+            throw new Error(`teodolito: the provider returned ${elevations.length} elevations for ${batch.length} points.`);
         }
         result.push(...elevations);
     }

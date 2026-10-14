@@ -120,7 +120,7 @@ export function buildSurface(
 ): Surface {
     const expected = grid.nodes.length + grid.extra.length;
     if (elevations.length !== expected) {
-        throw new Error(`teodolito: ${elevations.length} alturas para ${expected} muestras.`);
+        throw new Error(`teodolito: ${elevations.length} elevations for ${expected} samples.`);
     }
     const clean = elevations.map((value) => (typeof value === 'number' && Number.isFinite(value) ? value : null));
     const points = [...grid.nodes, ...grid.extra];

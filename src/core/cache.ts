@@ -26,7 +26,7 @@ export function cachedElevation(provider: ElevationProvider, options: CacheOptio
                 const asked = missing.map((key) => firstOf.get(key) as LonLat);
                 const answers = await provider.getElevations(asked, request);
                 if (answers.length !== asked.length) {
-                    throw new Error(`teodolito: el proveedor devolvió ${answers.length} alturas para ${asked.length} puntos.`);
+                    throw new Error(`teodolito: the provider returned ${answers.length} elevations for ${asked.length} points.`);
                 }
                 missing.forEach((key, i) => remember(key, answers[i] ?? null));
             }

@@ -28,7 +28,7 @@ const extreme = (point: Known): Extreme => ({ elevation: point.elevation, distan
 
 export function buildProfile(samples: readonly Sample[], elevations: readonly (number | null)[]): Profile {
     if (samples.length !== elevations.length) {
-        throw new Error(`teodolito: ${elevations.length} alturas para ${samples.length} muestras.`);
+        throw new Error(`teodolito: ${elevations.length} elevations for ${samples.length} samples.`);
     }
     const points = samples.map((sample, i): ProfilePoint => {
         const elevation = elevations[i];

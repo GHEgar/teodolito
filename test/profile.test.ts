@@ -94,7 +94,7 @@ describe('requestElevations y computeProfile', () => {
 
     it('falla si el proveedor devuelve otra cantidad', async () => {
         const provider: ElevationProvider = { getElevations: async () => [1] };
-        await expect(requestElevations(provider, [[0, 0], [1, 1]])).rejects.toThrow(/1 alturas para 2/);
+        await expect(requestElevations(provider, [[0, 0], [1, 1]])).rejects.toThrow(/1 elevations for 2/);
     });
 
     it('se cancela con el signal', async () => {

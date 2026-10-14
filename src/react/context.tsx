@@ -18,6 +18,6 @@ export function useOptionalTeodolitoInstance(): Teodolito | null {
 
 export function useTeodolitoInstance(): Teodolito {
     const instance = useContext(TeodolitoContext);
-    if (!instance) throw new Error('teodolito: falta <TeodolitoProvider value={...}> con una instancia.');
+    if (!instance) throw new Error('teodolito: missing <TeodolitoProvider value={...}> with an instance.');
     return instance;
 }
