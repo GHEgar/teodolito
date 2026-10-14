@@ -8,6 +8,8 @@ Headless measuring and drawing tools for OpenLayers: geodesic measures, vertex e
 
 ![Measuring a distance and an area, dragging a vertex while the measures follow, then undo and redo](.github/assets/demo.gif)
 
+**[Live demo](https://ghegar.github.io/teodolito/)**
+
 teodolito owns the state — tools, geodesic measures, selection, vertex editing, undo/redo, text editing,
 GeoJSON — and you own every pixel: it ships no styles, only the measure and state of each feature for
 your own style function, plus a snapshot to render your toolbar and list from. It ships no elevation
