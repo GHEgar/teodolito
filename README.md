@@ -1,30 +1,49 @@
-# teodolito
+# <picture><source media="(prefers-color-scheme: dark)" srcset=".github/assets/icon-dark.svg"><img src=".github/assets/icon-light.svg" width="36" height="36" alt=""></picture> teodolito
 
-Headless measuring and drawing tools for OpenLayers. teodolito owns the state — tools, geodesic
-measures, vertex editing, undo/redo, GeoJSON — and you own every pixel: it ships no styles, only the
-measure and state of each feature for your own style function.
+[![npm](https://img.shields.io/npm/v/teodolito)](https://www.npmjs.com/package/teodolito)
+[![size](https://img.shields.io/bundlejs/size/teodolito)](https://bundlejs.com/?q=teodolito)
+[![license](https://img.shields.io/github/license/GHEgar/teodolito)](LICENSE)
+
+Headless measuring and drawing tools for OpenLayers: geodesic measures, vertex editing, undo/redo and GeoJSON.
+
+![Measuring a distance and an area, dragging a vertex while the measures follow, then undo and redo](.github/assets/demo.gif)
+
+teodolito owns the state — tools, geodesic measures, selection, vertex editing, undo/redo, text editing,
+GeoJSON — and you own every pixel: it ships no styles, only the measure and state of each feature for
+your own style function, plus a snapshot to render your toolbar and list from. It ships no elevation
+data either: profiles and terrain come from a provider you inject.
+
+## Install
 
 ```bash
 npm install teodolito ol
 ```
 
-```ts
-import { createTeodolito } from 'teodolito';
-import { Stroke, Style, Text } from 'ol/style.js';
+| Entry | What it is | Needs |
+|---|---|---|
+| `teodolito` | Framework-free core: tools, measures, editing, history, handles, GeoJSON, elevation profiles and terrain-RGB | `ol >= 10` |
+| `teodolito/react` | `TeodolitoProvider`, `useTeodolito`, `useMeasurement`, `useTextEditor`, `useProfile` and `useElevation` | `react >= 19` |
 
-const t = createTeodolito(map, {
-    locale: 'es-MX',
-    style: (feature, { kind, label, selected, sketch }) => new Style({
+## Quick start
+
+```ts
+import { Stroke, Style, Text } from 'ol/style.js';
+import { createTeodolito } from 'teodolito';
+
+const teodolito = createTeodolito(map, {
+    locale: 'en-US',
+    style: (feature, { label, selected, sketch }) => new Style({
         stroke: new Stroke({ color: '#0f766e', width: selected ? 4 : 2, lineDash: sketch ? [8, 6] : undefined }),
         text: new Text({ text: label }),
     }),
 });
 
-t.setTool('line');
-t.subscribe(() => console.log(t.getSnapshot().items));
+teodolito.setTool('polygon');
+teodolito.subscribe(() => render(teodolito.getSnapshot().items.map((item) => teodolito.format(item.measure))));
+document.querySelector('#undo')?.addEventListener('click', () => teodolito.undo());
 ```
 
-## What it does
+## Features
 
 | Feature | API |
 |---|---|
@@ -46,9 +65,11 @@ t.subscribe(() => console.log(t.getSnapshot().items));
 | Keyboard: Esc, Ctrl+Z, Ctrl+Shift+Z/Ctrl+Y, Delete | `keyboard: false` to opt out, `escape()` to wire your own stack |
 | Events | `onEvent({ type, ... })` |
 
+## Tools and measures
+
 Circles are geodesic polygons built from a center and a radius in meters; rectangles are axis-aligned
 boxes from two corners. Both are stored as `Polygon`, so they measure, serialize and take elevation
-like any polygon. They can be moved; resizing and rotating are not there yet.
+like any polygon; see below to rotate, scale and resize them.
 
 Lines, polygons and rectangles carry `segments` (`length`, geodesic `bearing` 0–360°, `midpoint` in the
 map projection) and `angles` (`vertex`, `degrees`, `coordinate`): interior angles for polygons whatever
@@ -71,6 +92,13 @@ With `handles` on (the default) the selection gets handle points your style func
 handle updates live and lands as a single undo step. Rectangle corners resize in the rectangle's own
 frame, so a rotated rectangle stays a rectangle.
 
+## Editing and history
+
+With no tool active, a click selects a feature: `Translate` moves it, `Modify` edits its vertices and
+`Snap` (on by default) snaps to the others. Measures are recomputed on every geometry change. Every add,
+remove, clear, move, vertex edit, text and props change is one undo step; the stack keeps the last
+`historyLimit` (100).
+
 Escape unwinds one step at a time: abort the sketch, cancel the text, clear the selection, drop the tool.
 While drawing, Ctrl+Z and Delete remove the last vertex.
 
@@ -91,7 +119,9 @@ Your style function gets `(feature, context)`:
 
 Without a style function teodolito falls back to OpenLayers' default styles.
 
-## Elevation profile
+## Elevation
+
+### Profile
 
 teodolito samples a line and asks your `ElevationProvider` for the heights; it ships no DEM.
 
@@ -181,6 +211,32 @@ const { status, profile, error, refresh } = useProfile(selectedId, provider, { d
 `useProfile` follows the item's geometry: edits, undo and redo recompute it after the debounce and abort
 the previous request. While loading it keeps the last profile of the same item. Keep `provider` stable.
 
+## Known limitations
+
+- Rectangles are drawn axis-aligned from two corners; rotate them afterwards.
+- Circles are stored as polygons of `circleSides` sides, so their area is slightly below πr².
+- No elevation data is bundled: profiles and terrain need your `ElevationProvider` or terrain-RGB tiles.
+  Tiles are read with `fetch`, so the server must allow CORS.
+- `surfaceArea` and the hypsometry come from a `cells × cells` grid, not from the full DEM resolution.
+
+## Development
+
+```bash
+npm test
+npm run lint
+npm run typecheck
+npm run demo
+npm run e2e
+```
+
+The demo is an OpenStreetMap map with every tool, units, segments and angles, a list of items with
+colors, visibility, rotate and scale, GeoJSON download, text editing on the map and an elevation panel
+fed by a synthetic provider or Terrarium tiles. The e2e suite runs Playwright against it.
+
+## Contributing
+
+Issues are welcome. Open one before sending a pull request.
+
 ## License
 
-AGPL-3.0-only.
+AGPL-3.0-only © GHEgar
