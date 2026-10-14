@@ -25,7 +25,7 @@ function Chart({ profile }: { profile: Profile }) {
     };
     return (
         <div className="chart">
-            <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="Perfil de alturas"
+            <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="Elevation profile"
                 onMouseMove={onMove} onMouseLeave={() => setHover(null)}>
                 <polygon points={area} className="chart-area" />
                 <polyline points={line} className="chart-line" />
@@ -34,7 +34,7 @@ function Chart({ profile }: { profile: Profile }) {
             <p className="chart-readout" data-testid="profile-readout">
                 {point
                     ? `${len(point.distance)} · ${m(point.elevation as number)}`
-                    : 'Pasa el cursor sobre la gráfica'}
+                    : 'Hover over the chart'}
             </p>
         </div>
     );
@@ -45,13 +45,13 @@ export function ProfileView({ profile }: { profile: Profile }) {
         <>
             <Chart profile={profile} />
             <dl className="stats">
-                <div><dt>Longitud</dt><dd>{len(profile.length)}</dd></div>
-                <div><dt>Sobre el relieve</dt><dd>{len(profile.surfaceLength)}</dd></div>
-                <div><dt>Subida</dt><dd data-testid="ascent">{m(profile.ascent)}</dd></div>
-                <div><dt>Bajada</dt><dd>{m(profile.descent)}</dd></div>
-                <div><dt>Desnivel</dt><dd>{profile.netChange === null ? '—' : m(profile.netChange)}</dd></div>
-                <div><dt>Máxima</dt><dd data-testid="max">{profile.max ? m(profile.max.elevation) : '—'}</dd></div>
-                <div><dt>Mínima</dt><dd>{profile.min ? m(profile.min.elevation) : '—'}</dd></div>
+                <div><dt>Length</dt><dd>{len(profile.length)}</dd></div>
+                <div><dt>Over terrain</dt><dd>{len(profile.surfaceLength)}</dd></div>
+                <div><dt>Ascent</dt><dd data-testid="ascent">{m(profile.ascent)}</dd></div>
+                <div><dt>Descent</dt><dd>{m(profile.descent)}</dd></div>
+                <div><dt>Net change</dt><dd>{profile.netChange === null ? '—' : m(profile.netChange)}</dd></div>
+                <div><dt>Max</dt><dd data-testid="max">{profile.max ? m(profile.max.elevation) : '—'}</dd></div>
+                <div><dt>Min</dt><dd>{profile.min ? m(profile.min.elevation) : '—'}</dd></div>
             </dl>
         </>
     );

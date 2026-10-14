@@ -27,7 +27,7 @@ export const terrarium: ElevationProvider = cachedElevation(createTerrainRgbProv
 }));
 
 export const providers = {
-    synthetic: { name: 'Sintético', provider: syntheticElevation },
+    synthetic: { name: 'Synthetic', provider: syntheticElevation },
     terrarium: { name: 'Terrarium (AWS)', provider: terrarium },
 } as const;
 

@@ -3,26 +3,26 @@ import { useTeodolito } from 'teodolito/react';
 import { Icon } from './icons';
 import { len } from './units';
 
-const locale = 'es-MX';
+const locale = 'en-US';
 const STEP = Math.PI / 4;
 
 function Transform({ item }: { item: Item }) {
     const t = useTeodolito();
     if (item.kind === 'point' || item.kind === 'freehand') return null;
     return (
-        <div className="transform" role="group" aria-label="Transformar">
+        <div className="transform" role="group" aria-label="Transform">
             {item.kind !== 'circle' && <>
-                <button type="button" className="icon" aria-label="Girar a la izquierda" onClick={() => t.rotate(item.id, -STEP)}>
+                <button type="button" className="icon" aria-label="Rotate left" onClick={() => t.rotate(item.id, -STEP)}>
                     <Icon name="rotateCcw" />
                 </button>
-                <button type="button" className="icon" aria-label="Girar a la derecha" onClick={() => t.rotate(item.id, STEP)}>
+                <button type="button" className="icon" aria-label="Rotate right" onClick={() => t.rotate(item.id, STEP)}>
                     <Icon name="rotateCw" />
                 </button>
             </>}
-            <button type="button" className="icon" aria-label="Agrandar" onClick={() => t.scale(item.id, 1.25)}>
+            <button type="button" className="icon" aria-label="Enlarge" onClick={() => t.scale(item.id, 1.25)}>
                 <Icon name="grow" />
             </button>
-            <button type="button" className="icon" aria-label="Achicar" onClick={() => t.scale(item.id, 0.8)}>
+            <button type="button" className="icon" aria-label="Shrink" onClick={() => t.scale(item.id, 0.8)}>
                 <Icon name="shrink" />
             </button>
             {(item.kind === 'text' || item.kind === 'symbol') && (
@@ -42,7 +42,7 @@ export function Details({ item }: { item: Item }) {
     return (
         <div className="details" data-testid="details">
             <Transform item={item} />
-            {shape?.type === 'circle' && <p data-testid="radius">Radio {len(shape.radius)}</p>}
+            {shape?.type === 'circle' && <p data-testid="radius">Radius {len(shape.radius)}</p>}
             {shape?.type === 'rectangle' && <p data-testid="sides">{len(shape.width)} × {len(shape.height)}</p>}
             {segments && segments.segments.length > 0 && (
                 <ol className="segments" data-testid="segments">

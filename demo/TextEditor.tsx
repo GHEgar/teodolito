@@ -24,7 +24,7 @@ export function TextEditor({ map }: { map: OlMap }) {
 
     if (!editor || !pixel) return null;
     return (
-        <input key={editor.id} className="text-editor" ref={input} aria-label="Texto" defaultValue={editor.value}
+        <input key={editor.id} className="text-editor" ref={input} aria-label="Text" defaultValue={editor.value}
             style={{ left: pixel[0], top: pixel[1] }}
             onKeyDown={(e) => {
                 if (e.key === 'Enter') editor.commit(e.currentTarget.value);

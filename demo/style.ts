@@ -41,18 +41,18 @@ function details(measure: Measure): Style[] {
     return [
         ...measure.segments.map((segment) => new Style({
             geometry: new Point(segment.midpoint),
-            text: small(formatLength(segment.length, { locale: 'es-MX' }).text, 12),
+            text: small(formatLength(segment.length, { locale: 'en-US' }).text, 12),
         })),
         ...measure.angles.map((angle) => new Style({
             geometry: new Point(angle.coordinate),
-            text: small(formatAngle(angle.degrees, { locale: 'es-MX', maximumFractionDigits: 0 }), 14),
+            text: small(formatAngle(angle.degrees, { locale: 'en-US', maximumFractionDigits: 0 }), 14),
         })),
     ];
 }
 
 function circleLabel(measure: Measure, fallback: string): string {
     if (measure.kind !== 'area' || measure.shape?.type !== 'circle') return fallback;
-    return `${fallback}\nr = ${formatLength(measure.shape.radius, { locale: 'es-MX' }).text}`;
+    return `${fallback}\nr = ${formatLength(measure.shape.radius, { locale: 'en-US' }).text}`;
 }
 
 function handle(color: string, kind: NonNullable<StyleContext['handle']>): Style {

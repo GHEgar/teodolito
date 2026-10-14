@@ -13,11 +13,11 @@ function Hypsometry({ surface }: { surface: Surface }) {
     const line = surface.hypsometry.map((s) => `${x(s.share).toFixed(1)},${y(s.elevation).toFixed(1)}`).join(' ');
     return (
         <div className="chart">
-            <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="Curva hipsométrica">
+            <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="Hypsometric curve">
                 <polygon points={`${x(0)},${height} ${line} ${x(1)},${height}`} className="chart-area" />
                 <polyline points={line} className="chart-line" />
             </svg>
-            <p className="chart-readout">Porcentaje del área por encima de cada altura</p>
+            <p className="chart-readout">Share of the area above each elevation</p>
         </div>
     );
 }
@@ -27,12 +27,12 @@ export function SurfaceView({ surface }: { surface: Surface }) {
         <>
             {surface.hypsometry.length > 0 && <Hypsometry surface={surface} />}
             <dl className="stats">
-                <div><dt>Área plana</dt><dd>{area(surface.planarArea)}</dd></div>
-                <div><dt>Sobre el relieve</dt><dd data-testid="surface-area">{area(surface.surfaceArea)}</dd></div>
-                <div><dt>Media</dt><dd>{surface.mean === null ? '—' : m(surface.mean)}</dd></div>
-                <div><dt>Muestras</dt><dd>{surface.samples - surface.missing}</dd></div>
-                <div><dt>Máxima</dt><dd data-testid="surface-max">{surface.max ? m(surface.max.elevation) : '—'}</dd></div>
-                <div><dt>Mínima</dt><dd>{surface.min ? m(surface.min.elevation) : '—'}</dd></div>
+                <div><dt>Planar area</dt><dd>{area(surface.planarArea)}</dd></div>
+                <div><dt>Over terrain</dt><dd data-testid="surface-area">{area(surface.surfaceArea)}</dd></div>
+                <div><dt>Mean</dt><dd>{surface.mean === null ? '—' : m(surface.mean)}</dd></div>
+                <div><dt>Samples</dt><dd>{surface.samples - surface.missing}</dd></div>
+                <div><dt>Max</dt><dd data-testid="surface-max">{surface.max ? m(surface.max.elevation) : '—'}</dd></div>
+                <div><dt>Min</dt><dd>{surface.min ? m(surface.min.elevation) : '—'}</dd></div>
             </dl>
         </>
     );

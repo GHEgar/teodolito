@@ -5,13 +5,13 @@ import { Icon } from './icons';
 import { swatches } from './style';
 
 const names: Record<Item['kind'], string> = {
-    line: 'Distancia', polygon: 'Área', point: 'Punto', freehand: 'Trazo', text: 'Texto',
-    circle: 'Círculo', rectangle: 'Rectángulo', symbol: 'Símbolo',
+    line: 'Distance', polygon: 'Area', point: 'Point', freehand: 'Stroke', text: 'Text',
+    circle: 'Circle', rectangle: 'Rectangle', symbol: 'Symbol',
 };
 
 function download(data: unknown): void {
     const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/geo+json' }));
-    const link = Object.assign(document.createElement('a'), { href: url, download: 'mediciones.geojson' });
+    const link = Object.assign(document.createElement('a'), { href: url, download: 'measurements.geojson' });
     link.click();
     URL.revokeObjectURL(url);
 }
@@ -23,11 +23,11 @@ export function ItemList() {
             <header>
                 <h1>teodolito</h1>
                 <div className="units">
-                    <select aria-label="Unidad de longitud" value={t.units.length}
+                    <select aria-label="Length unit" value={t.units.length}
                         onChange={(e) => t.setUnits({ length: e.target.value as LengthUnit })}>
                         <option value="auto">auto</option><option value="m">m</option><option value="km">km</option>
                     </select>
-                    <select aria-label="Unidad de área" value={t.units.area}
+                    <select aria-label="Area unit" value={t.units.area}
                         onChange={(e) => t.setUnits({ area: e.target.value as AreaUnit })}>
                         <option value="auto">auto</option><option value="m2">m²</option>
                         <option value="ha">ha</option><option value="km2">km²</option>
@@ -48,11 +48,11 @@ export function ItemList() {
                                     onClick={(e) => { e.stopPropagation(); t.setProps(item.id, { color }); }} />
                             ))}
                         </span>
-                        <button type="button" className="icon" aria-label={item.visible ? 'Ocultar' : 'Mostrar'}
+                        <button type="button" className="icon" aria-label={item.visible ? 'Hide' : 'Show'}
                             onClick={(e) => { e.stopPropagation(); t.setVisible(item.id, !item.visible); }}>
                             <Icon name={item.visible ? 'eye' : 'eyeOff'} />
                         </button>
-                        <button type="button" className="icon" aria-label="Borrar"
+                        <button type="button" className="icon" aria-label="Delete"
                             onClick={(e) => { e.stopPropagation(); t.remove(item.id); }}>
                             <Icon name="trash" />
                         </button>
@@ -60,13 +60,13 @@ export function ItemList() {
                     </li>
                 ))}
             </ul>
-            {t.items.length === 0 && <p className="empty">Elige una herramienta y traza sobre el mapa.</p>}
+            {t.items.length === 0 && <p className="empty">Pick a tool and draw on the map.</p>}
             <footer>
                 <button type="button" disabled={t.items.length === 0} onClick={() => download(t.toGeoJSON())}>
                     <Icon name="download" /> GeoJSON
                 </button>
                 <button type="button" disabled={t.items.length === 0} onClick={() => t.clear()}>
-                    <Icon name="trash" /> Borrar todo
+                    <Icon name="trash" /> Clear all
                 </button>
             </footer>
         </aside>

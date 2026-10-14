@@ -33,7 +33,7 @@ function App() {
 
     const teodolito = useCreateTeodolito(map, {
         style: demoStyle,
-        locale: 'es-MX',
+        locale: 'en-US',
         defaultProps: () => ({ color: swatches[0] }),
         symbol: '🌳',
     });
