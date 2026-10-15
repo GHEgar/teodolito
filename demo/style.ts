@@ -13,7 +13,7 @@ function label(text: string, placement: 'point' | 'line' = 'point', offsetY = 0)
     if (!text) return undefined;
     return new Text({
         text,
-        font: '600 13px system-ui, sans-serif',
+        font: '600 13px Rotulo, system-ui, sans-serif',
         fill: new Fill({ color: '#1f2933' }),
         stroke: halo,
         placement,
@@ -30,7 +30,7 @@ const vertex = (color: string, radius = 5) => new Circle({
 
 const small = (text: string, offsetY = 0): Text => new Text({
     text,
-    font: '500 11px system-ui, sans-serif',
+    font: '500 11px Rotulo, system-ui, sans-serif',
     fill: new Fill({ color: '#334155' }),
     stroke: halo,
     offsetY,
@@ -88,7 +88,7 @@ export const demoStyle: StyleFunction = (_feature, context) => {
             return new Style({
                 text: new Text({
                     text: context.symbol,
-                    font: `${Math.round(28 * context.scale)}px system-ui, sans-serif`,
+                    font: `${Math.round(28 * context.scale)}px Rotulo, system-ui, sans-serif`,
                     rotation: context.rotation,
                     ...(context.selected ? { backgroundStroke: new Stroke({ color, width: 1.5 }), padding: [2, 2, 2, 2] } : {}),
                 }),
@@ -99,7 +99,7 @@ export const demoStyle: StyleFunction = (_feature, context) => {
                 text: new Text({
                     text: context.editing ? '' : context.text,
                     rotation: context.rotation,
-                    font: `600 ${Math.round((context.selected ? 17 : 16) * context.scale)}px system-ui, sans-serif`,
+                    font: `600 ${Math.round((context.selected ? 17 : 16) * context.scale)}px Rotulo, system-ui, sans-serif`,
                     fill: new Fill({ color }),
                     stroke: halo,
                 }),

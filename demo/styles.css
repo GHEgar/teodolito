@@ -5,7 +5,7 @@
     --paper: #ffffff;
     --accent: #0f766e;
     --accent-soft: #ccfbf1;
-    font-family: system-ui, sans-serif;
+    font-family: 'Rotulo', system-ui, sans-serif;
     color: var(--ink);
 }
 
@@ -65,7 +65,7 @@ body { margin: 0; background: #f8fafc; }
 .panel footer button:disabled { color: #cbd5e1; cursor: default; }
 .text-editor {
     position: absolute; transform: translate(-50%, -50%); min-width: 140px; padding: 6px 12px;
-    border: 2px solid var(--accent); border-radius: 999px; font: 600 15px system-ui, sans-serif; outline: none;
+    border: 2px solid var(--accent); border-radius: 999px; font: 600 15px 'Rotulo', system-ui, sans-serif; outline: none;
 }
 @media (max-width: 640px) {
     .panel { top: auto; bottom: 16px; left: 16px; right: 16px; width: auto; max-height: 40%; }

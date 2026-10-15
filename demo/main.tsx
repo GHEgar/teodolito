@@ -1,4 +1,5 @@
 import 'ol/ol.css';
+import '@npmegar/rotulo';
 import OlMap from 'ol/Map.js';
 import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
@@ -55,4 +56,6 @@ function App() {
     );
 }
 
-createRoot(document.getElementById('root') as HTMLElement).render(<StrictMode><App /></StrictMode>);
+Promise.all(['16px Rotulo', '500 16px Rotulo', '600 16px Rotulo'].map((font) => document.fonts.load(font))).finally(() => {
+    createRoot(document.getElementById('root') as HTMLElement).render(<StrictMode><App /></StrictMode>);
+});
