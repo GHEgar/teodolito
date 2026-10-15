@@ -1,5 +1,5 @@
 import 'ol/ol.css';
-import '@npmegar/rotulo';
+import 'rotulo';
 import OlMap from 'ol/Map.js';
 import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
