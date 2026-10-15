@@ -8,6 +8,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 ### Cambiado
 
 - El demo está en inglés.
+- El demo usa los íconos de tesela.
 - Los mensajes de error del paquete están en inglés, con el prefijo `teodolito:` y los mismos datos.
 
 ## [0.5.0] - 2026-10-13
