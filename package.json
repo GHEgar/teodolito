@@ -17,6 +17,10 @@
     "author": "Edgar Villarreal",
     "type": "module",
     "sideEffects": false,
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/GHEgar/teodolito.git"
+    },
     "files": [
         "dist"
     ],
