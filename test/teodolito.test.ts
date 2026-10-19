@@ -126,6 +126,9 @@ describe('createTeodolito', () => {
         expect(t.format(measure)).toMatch(/km$/);
         t.setUnits({ length: 'm' });
         expect(t.format(measure)).toMatch(/ m$/);
+        t.setUnits({ length: 'auto', system: 'imperial' });
+        expect(t.format(measure)).toMatch(/ (ft|mi)$/);
+        expect(t.getSnapshot().units).toEqual({ length: 'auto', area: 'auto', system: 'imperial' });
     });
 
     it('se desmonta sin dejar capa ni interacciones', () => {

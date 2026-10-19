@@ -7,6 +7,11 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ### Agregado
 
+- Unidades imperiales: `ft` y `mi` para longitudes, `ft2`, `ac` y `mi2` para áreas, y `units.system`
+  (`metric` por omisión, `imperial` o `auto`). Con `auto` el sistema sale de la región del `locale` o,
+  sin él, de `navigator.language` (US, LR y MM son imperiales). `formatElevation` da pies en imperial.
+  Se exportan `resolveUnitSystem`, `localeSystem` y el tipo `UnitSystem`.
+- Pruebas de que `decodeImage` crea el contexto 2D con `willReadFrequently`.
 - Opciones `arbiter` y `tool` (por omisión `'measure'`): al activar una herramienta se reclama el clic
   en un árbitro estructural (`claim(tool, { escape }) => release`) y se suelta al apagarla o al
   destruir; si el árbitro quita el clic, se corre `escape()` y se apaga la herramienta.

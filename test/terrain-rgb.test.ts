@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
-import { cachedElevation, createTerrainRgbProvider, decoders, type LonLat, type TerrainRgbOptions } from '../src/core/index.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cachedElevation, createTerrainRgbProvider, decodeImage, decoders, type LonLat, type TerrainRgbOptions } from '../src/core/index.js';
 
 const size = 4;
 const latOf = (y: number, span: number): number => (Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / span))) * 180) / Math.PI;
@@ -99,5 +99,36 @@ describe('cachedElevation', () => {
         expect(getElevations).toHaveBeenLastCalledWith([[1, 0], [2, 0]], {});
         expect(await cached.getElevations([[1.0001, 0], [3, 0]], {})).toEqual([1, 3]);
         expect(getElevations).toHaveBeenLastCalledWith([[3, 0]], {});
+    });
+});
+
+describe('decodeImage', () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it('lee los píxeles de un contexto creado con willReadFrequently', async () => {
+        const data = new Uint8ClampedArray(16);
+        const context = { drawImage: vi.fn(), getImageData: vi.fn(() => ({ data })) };
+        const getContext = vi.fn(() => context);
+        const close = vi.fn();
+        vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ close })));
+        vi.stubGlobal('OffscreenCanvas', vi.fn(function OffscreenCanvas() {
+            return { getContext };
+        }));
+        await expect(decodeImage(new Blob(), 2)).resolves.toBe(data);
+        expect(getContext).toHaveBeenCalledWith('2d', { willReadFrequently: true });
+        expect(close).toHaveBeenCalled();
+    });
+
+    it('sin OffscreenCanvas usa un canvas del documento con willReadFrequently', async () => {
+        const data = new Uint8ClampedArray(16);
+        const context = { drawImage: vi.fn(), getImageData: vi.fn(() => ({ data })) };
+        vi.stubGlobal('createImageBitmap', vi.fn(async () => ({ close: vi.fn() })));
+        vi.stubGlobal('OffscreenCanvas', undefined);
+        const getContext = vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as never);
+        await expect(decodeImage(new Blob(), 2)).resolves.toBe(data);
+        expect(getContext).toHaveBeenCalledWith('2d', { willReadFrequently: true });
+        getContext.mockRestore();
     });
 });

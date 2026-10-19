@@ -53,7 +53,7 @@ document.querySelector('#undo')?.addEventListener('click', () => teodolito.undo(
 | Geodesic measures (length, area, perimeter, lon/lat) | `item.measure`, `measureGeometry()` |
 | Per-segment length and bearing, vertex angles | `measure.segments`, `measure.angles` |
 | Circle center and radius, rectangle width and height | `measure.shape` |
-| Units `auto`/m/km and `auto`/m²/ha/km² with `Intl` | `setUnits()`, `format()`, `formatMeasure()` |
+| Metric and imperial units with `Intl`: m/km/ft/mi and m²/ha/km²/ft²/ac/mi² | `units` option, `setUnits()`, `format()`, `formatMeasure()` |
 | Live measure while drawing | `snapshot.drawing`, `snapshot.sketch` |
 | Select, move (Translate), edit vertices (Modify), snap | click on the map, `select(id)`, `snap` option |
 | Measures follow edits | recomputed on every geometry change |
@@ -66,6 +66,21 @@ document.querySelector('#undo')?.addEventListener('click', () => teodolito.undo(
 | GeoJSON in EPSG:4326 | `toGeoJSON()`, `fromGeoJSON()` |
 | Keyboard: Esc, Ctrl+Z, Ctrl+Shift+Z/Ctrl+Y, Delete | `keyboard: false` to opt out, `escape()` to wire your own stack |
 | Events | `onEvent({ type, ... })` |
+
+### Units
+
+`units` (option, `setUnits()` or `FormatOptions.units`) takes `length`, `area` and `system`.
+`system` is `metric` (default), `imperial` or `auto`; `auto` picks imperial when the region of
+`locale`, or of `navigator.language` without it, is US, LR or MM (`en-US` and `en` are imperial,
+`en-GB` is metric). With `length` or `area` set to `auto` the unit scales inside the system: m below
+1 km, then km; ft below 1 mi, then mi; m², ha, km²; ft² below 1 acre, ac below 1 mi², then mi². A
+fixed unit (`m`, `km`, `ft`, `mi`, `m2`, `ha`, `km2`, `ft2`, `ac`, `mi2`) wins over the system.
+`formatElevation` uses ft in imperial. `resolveUnitSystem()` and `localeSystem()` expose the choice.
+
+```ts
+createTeodolito(map, { locale: navigator.language, units: { system: 'auto' } });
+formatLength(1609.344, { units: { system: 'imperial' }, locale: 'en-US' }).text;
+```
 
 ## Tools and measures
 
@@ -164,7 +179,7 @@ profile.ascent;
 | `ElevationProvider` | `getElevations(points, { signal })` returns one height or `null` per point; `maxPoints` splits the request in batches |
 | `buildProfile(samples, elevations)` | distance against elevation plus `length`, `surfaceLength`, `ascent`, `descent`, `netChange`, `max`, `min`, `missing` |
 | `computeProfile(lineString, provider, options)` | all of the above for a projected `LineString`, abortable with `signal` |
-| `formatElevation(meters, { locale })` | `1,523 m` |
+| `formatElevation(meters, { locale, units })` | `1,523 m`, or `4,997 ft` in imperial |
 
 Missing heights stay as `null` in `points`; the statistics bridge the gaps between known heights.
 Profiles cover lines and freehand strokes.

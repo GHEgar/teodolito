@@ -16,8 +16,10 @@ export {
     formatLength,
     formatLonLat,
     formatMeasure,
+    localeSystem,
     resolveAreaUnit,
     resolveLengthUnit,
+    resolveUnitSystem,
 } from './format.js';
 export {
     computeElevation, computeProfile, computeSurface, getPointElevation, requestElevations,
@@ -35,7 +37,7 @@ export { buildProfile } from './profile.js';
 export type { Extreme, Profile, ProfilePoint } from './profile.js';
 export { interpolate, sampleLine } from './sampling.js';
 export type { LonLat, Sample, SampleOptions } from './sampling.js';
-export type { AngleFormatOptions, AreaUnit, FormatOptions, LengthUnit, Quantity, Units } from './format.js';
+export type { AngleFormatOptions, AreaUnit, FormatOptions, LengthUnit, Quantity, Units, UnitSystem } from './format.js';
 export type { TeodolitoCollection, TeodolitoFeature } from './geojson.js';
 export type {
     Handle,
