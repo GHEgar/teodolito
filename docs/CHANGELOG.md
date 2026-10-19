@@ -7,6 +7,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ### Agregado
 
+- Opciones `arbiter` y `tool` (por omisión `'measure'`): al activar una herramienta se reclama el clic
+  en un árbitro estructural (`claim(tool, { escape }) => release`) y se suelta al apagarla o al
+  destruir; si el árbitro quita el clic, se corre `escape()` y se apaga la herramienta.
+- README: `zIndex` documentado con la banda 900–999 para herramientas.
 - `release.yml`: un tag `vX.Y.Z` corre las pruebas, crea el release con su sección del CHANGELOG y
   publica en npm con procedencia y en GitHub Packages.
 

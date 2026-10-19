@@ -58,6 +58,10 @@ export type TeodolitoEvent =
     | { type: 'tool'; tool: Tool | null }
     | { type: 'undo' | 'redo' | 'clear' | 'load' };
 
+export interface ToolArbiter {
+    claim(tool: string, handlers: { escape?(): void }): () => void;
+}
+
 export interface TeodolitoOptions {
     style?: StyleFunction;
     vertexStyle?: StyleLike;
@@ -77,5 +81,7 @@ export interface TeodolitoOptions {
     historyLimit?: number;
     keyboard?: boolean;
     zIndex?: number;
+    arbiter?: ToolArbiter;
+    tool?: string;
     onEvent?: (event: TeodolitoEvent) => void;
 }

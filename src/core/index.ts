@@ -47,5 +47,6 @@ export type {
     StyleFunction,
     TeodolitoEvent,
     TeodolitoOptions,
+    ToolArbiter,
     Tool,
 } from './types.js';

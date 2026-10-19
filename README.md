@@ -104,6 +104,21 @@ remove, clear, move, vertex edit, text and props change is one undo step; the st
 Escape unwinds one step at a time: abort the sketch, cancel the text, clear the selection, drop the tool.
 While drawing, Ctrl+Z and Delete remove the last vertex.
 
+### Sharing the map with other tools
+
+```ts
+createTeodolito(map, { arbiter, tool: 'measure', keyboard: false, zIndex: 950 });
+```
+
+`arbiter` is anything with `claim(tool, { escape }) => release`. Activating a tool claims the click
+under `tool` (default `'measure'`), so other tools stop selecting while you measure; dropping the tool
+or `destroy()` releases it. When the arbiter takes the click away (Escape from its stack, or another
+tool claims it), teodolito runs `escape()` and drops the tool. Pass `keyboard: false` when the arbiter
+already owns Escape.
+
+The layer sits at `zIndex` 1000 and its handles one above. Hosts that reserve the 900–999 band for
+tools pass a value in it, such as `zIndex: 950`.
+
 ## Style context
 
 Your style function gets `(feature, context)`:

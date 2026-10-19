@@ -120,6 +120,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
     });
 
     let drawing: Drawing | null = null;
+    let release: (() => void) | null = null;
     const onDrawEnd = (tool: Tool, feature: Feature<Geometry>): void => {
         const geometry = feature.getGeometry() as Geometry;
         const id = newId();
@@ -142,6 +143,14 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         if (tool) text.cancel();
         select(null);
         store.set({ tool, drawing: false, sketch: null });
+        if (tool && !release && options.arbiter) {
+            release = options.arbiter.claim(options.tool ?? 'measure', { escape: yieldClick });
+        }
+        if (!tool && release) {
+            const done = release;
+            release = null;
+            done();
+        }
         if (tool) {
             drawing = startDrawing({
                 map, tool, projection, circleSides: sides,
@@ -181,6 +190,11 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         else return false;
         return true;
     };
+    function yieldClick(): void {
+        release = null;
+        escape();
+        setTool(null);
+    }
     const unlistenKeys = options.keyboard === false ? () => undefined : listenKeys(window, {
         escape,
         undo: () => (store.get().drawing ? (removeLastPoint(), true) : undo()),
