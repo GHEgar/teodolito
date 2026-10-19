@@ -7,6 +7,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ### Agregado
 
+- `marks.angleAt` (`'every'` por omisión o `'last'`): con `'last'` solo se marca el ángulo de la última
+  esquina trazada, en lugar de uno por vértice. Se exporta el tipo `AnglePlacement`.
 - Marcas sobre el mapa, apagadas por omisión: `marks` (`segmentLabels`, `vertexAngles`, `vertices`,
   `minSegmentPixels` 40, `angleDigits` 0), `setMarks()` y `snapshot.marks`. Longitud de cada tramo en su
   punto medio, ángulo interior en cada vértice e inicio, fin e intermedios marcados, también en el boceto.

@@ -60,6 +60,16 @@ describe('computeMarks', () => {
         expect(types(marksOf(elbow(), 'angle'))).toEqual(['start', 'vertex', 'end', 'segment', 'segment']);
     });
 
+    it('con angleAt last solo marca el ángulo de la última esquina', () => {
+        const line = new LineString([[0, 0], [0.01, 0], [0.01, 0.01], [0.02, 0.01]].map((p) => fromLonLat(p)));
+        const angles = marksOf(line, 'line', 10, { ...defaultMarks, vertexAngles: true, angleAt: 'last' });
+        expect(types(angles)).toEqual(['angle']);
+        expect(angles[0]?.index).toBe(2);
+        expect(angles[0]?.coordinate).toEqual(fromLonLat([0.01, 0.01]));
+        const ring = marksOf(square(), 'polygon', 10, { ...defaultMarks, vertexAngles: true, angleAt: 'last' });
+        expect(ring.map((mark) => mark.index)).toEqual([3]);
+    });
+
     it('respeta cada interruptor', () => {
         expect(types(marksOf(elbow(), 'line', 10, { ...defaultMarks, segmentLabels: true }))).toEqual(['segment', 'segment']);
         expect(types(marksOf(elbow(), 'line', 10, { ...defaultMarks, vertexAngles: true }))).toEqual(['angle']);

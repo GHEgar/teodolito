@@ -114,7 +114,8 @@ Marks are drawn on teodolito's layer after your style, for items and for the ske
 default. `segmentLabels` puts each segment's length on its midpoint, `vertexAngles` the interior angle
 on each vertex, and `vertices` marks the start, the end (lines only) and the vertices in between; freehand
 strokes only get start and end, circles none. Labels use the instance `units`, `locale` and `format`
-(imperial included) and `angleDigits` (0). A segment shorter than `minSegmentPixels` (40) on screen hides
+(imperial included) and `angleDigits` (0). `angleAt: 'last'` keeps only the angle of the last corner
+drawn instead of one per vertex (`'every'`, the default). A segment shorter than `minSegmentPixels` (40) on screen hides
 its label and the angles it touches. `snapshot.marks` holds the current switches.
 
 `markStyle(mark, context)` returns OpenLayers styles for one `Mark` (`type`: `segment`, `angle`, `start`,

@@ -14,7 +14,10 @@ export interface Marks {
     vertices: boolean;
     minSegmentPixels: number;
     angleDigits: number;
+    angleAt: AnglePlacement;
 }
+
+export type AnglePlacement = 'every' | 'last';
 
 export type MarkType = 'segment' | 'angle' | 'start' | 'end' | 'vertex';
 
@@ -34,7 +37,7 @@ export interface MarkFormat {
 }
 
 export const defaultMarks: Marks = {
-    segmentLabels: false, vertexAngles: false, vertices: false, minSegmentPixels: 40, angleDigits: 0,
+    segmentLabels: false, vertexAngles: false, vertices: false, minSegmentPixels: 40, angleDigits: 0, angleAt: 'every',
 };
 
 type Layout = 'open' | 'closed' | 'ends';
@@ -83,7 +86,9 @@ export function computeMarks(
         });
     }
     if (marks.vertexAngles && kind !== 'angle') {
+        const last = angles.reduce((top, angle) => Math.max(top, angle.vertex), -1);
         angles.forEach((angle) => {
+            if (marks.angleAt === 'last' && angle.vertex !== last) return;
             const before = (angle.vertex - 1 + segments.length) % segments.length;
             if (!wide[before] || !wide[angle.vertex % segments.length]) return;
             result.push({
