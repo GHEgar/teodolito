@@ -2,9 +2,10 @@ import type { FeatureLike } from 'ol/Feature.js';
 import type { StyleLike } from 'ol/style/Style.js';
 import type Style from 'ol/style/Style.js';
 import type { FormatOptions, Units } from './format.js';
+import type { Marks, MarkStyleFunction } from './marks.js';
 import type { Measure } from './measure.js';
 
-export type Tool = 'line' | 'polygon' | 'point' | 'freehand' | 'text' | 'circle' | 'rectangle' | 'symbol';
+export type Tool = 'line' | 'polygon' | 'point' | 'freehand' | 'text' | 'circle' | 'rectangle' | 'symbol' | 'angle';
 export type Handle = 'rotate' | 'scale' | 'radius' | 'corner';
 export type Kind = Tool;
 export type Props = Readonly<Record<string, unknown>>;
@@ -13,6 +14,7 @@ export interface Item {
     readonly id: string;
     readonly kind: Kind;
     readonly measure: Measure;
+    readonly name: string;
     readonly text: string;
     readonly props: Props;
     readonly visible: boolean;
@@ -30,6 +32,7 @@ export interface Snapshot {
     readonly editingTextId: string | null;
     readonly symbol: string;
     readonly units: Units;
+    readonly marks: Marks;
     readonly canUndo: boolean;
     readonly canRedo: boolean;
 }
@@ -38,6 +41,7 @@ export interface StyleContext {
     readonly kind: Kind;
     readonly measure: Measure;
     readonly label: string;
+    readonly name: string;
     readonly text: string;
     readonly props: Props;
     readonly selected: boolean;
@@ -67,6 +71,8 @@ export interface TeodolitoOptions {
     vertexStyle?: StyleLike;
     units?: Partial<Units>;
     locale?: string;
+    marks?: Partial<Marks>;
+    markStyle?: MarkStyleFunction;
     format?: Omit<FormatOptions, 'units' | 'locale'>;
     defaultProps?: (kind: Kind) => Props;
     circleSides?: number;

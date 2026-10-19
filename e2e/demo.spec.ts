@@ -226,3 +226,26 @@ test('cambia el radio del círculo con su manija y el rectángulo rotado sigue s
     await expect(angles).toHaveCount(4);
     for (let i = 0; i < 4; i += 1) await expect(angles.nth(i)).toContainText(/∠ (89\.\d|90(\.\d)?)°/);
 });
+
+test('mide un ángulo de tres clics, lo renombra y prende y apaga las marcas', async ({ page }) => {
+    const c = await center(page);
+    await page.getByRole('button', { name: 'Angle', exact: true }).click();
+    await clickAt(page, c.x, c.y - 150);
+    await clickAt(page, c.x, c.y);
+    await clickAt(page, c.x + 150, c.y);
+    await expect(items(page)).toHaveCount(1);
+    await expect(items(page).first().locator('.value')).toHaveText(/^(89|90)(\.\d)?°$/);
+    await page.screenshot({ path: 'test-results/marks-angle.png' });
+    await page.getByRole('button', { name: 'Select' }).click();
+    await items(page).first().locator('.pick').click();
+    const name = page.getByRole('textbox', { name: 'Name' });
+    await name.fill('Corner');
+    await name.press('Enter');
+    await expect(items(page).first().locator('.kind')).toHaveText('Corner');
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(items(page).first().locator('.kind')).toHaveText('Angle');
+    const labels = page.getByRole('button', { name: 'Segments and angles' });
+    await expect(labels).toHaveAttribute('aria-pressed', 'true');
+    await labels.click();
+    await expect(labels).toHaveAttribute('aria-pressed', 'false');
+});

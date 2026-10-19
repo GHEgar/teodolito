@@ -7,6 +7,8 @@ export interface Segment {
     readonly length: number;
     readonly bearing: number;
     readonly midpoint: Coordinate;
+    readonly start: Coordinate;
+    readonly end: Coordinate;
 }
 
 export interface Angle {
@@ -60,6 +62,8 @@ export function measureSegments(coordinates: readonly Coordinate[], projection: 
             length: getDistance([a[0], a[1]], [b[0], b[1]]),
             bearing: bearing(a, b),
             midpoint: fromLonLat([...interpolate(a, b, 0.5)], projection),
+            start: points[i] as Coordinate,
+            end: points[(i + 1) % points.length] as Coordinate,
         };
     });
     const ccw = signedArea(lonLats) > 0;

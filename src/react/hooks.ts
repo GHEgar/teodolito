@@ -6,7 +6,7 @@ import { useTeodolitoInstance } from './context.js';
 
 export type TeodolitoActions = Pick<Teodolito,
     | 'setTool' | 'removeLastPoint' | 'finishDrawing' | 'abortDrawing' | 'select' | 'remove' | 'clear'
-    | 'setVisible' | 'setProps' | 'editText' | 'commitText' | 'cancelText' | 'undo' | 'redo' | 'setUnits'
+    | 'setVisible' | 'rename' | 'setProps' | 'editText' | 'commitText' | 'cancelText' | 'undo' | 'redo' | 'setUnits' | 'setMarks'
     | 'format' | 'toGeoJSON' | 'fromGeoJSON' | 'escape' | 'setSymbol' | 'rotate' | 'scale' | 'setTransform' | 'setRadius'>;
 
 export type UseTeodolito = Snapshot & TeodolitoActions & { instance: Teodolito };
@@ -53,6 +53,7 @@ export function useTeodolito(): UseTeodolito {
         remove: instance.remove,
         clear: instance.clear,
         setVisible: instance.setVisible,
+        rename: instance.rename,
         setProps: instance.setProps,
         editText: instance.editText,
         commitText: instance.commitText,
@@ -60,6 +61,7 @@ export function useTeodolito(): UseTeodolito {
         undo: instance.undo,
         redo: instance.redo,
         setUnits: instance.setUnits,
+        setMarks: instance.setMarks,
         format: instance.format,
         toGeoJSON: instance.toGeoJSON,
         fromGeoJSON: instance.fromGeoJSON,

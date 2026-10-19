@@ -3,6 +3,7 @@ import type Feature from 'ol/Feature.js';
 import type Geometry from 'ol/geom/Geometry.js';
 import Draw, { createBox } from 'ol/interaction/Draw.js';
 import Modify from 'ol/interaction/Modify.js';
+import { altKeyOnly, singleClick } from 'ol/events/condition.js';
 import Snap from 'ol/interaction/Snap.js';
 import Translate from 'ol/interaction/Translate.js';
 import type OlMap from 'ol/Map.js';
@@ -20,12 +21,14 @@ const drawTypes = {
     circle: 'Circle',
     rectangle: 'Circle',
     symbol: 'Point',
+    angle: 'LineString',
 } as const;
 
 export function createDraw(tool: Tool, style: StyleLike, circleSides = 64): Draw {
     const geometryFunction = tool === 'circle' ? circleGeometry(circleSides) : tool === 'rectangle' ? createBox() : undefined;
     return new Draw({
         type: drawTypes[tool], freehand: tool === 'freehand', style, stopClick: true,
+        ...(tool === 'angle' ? { maxPoints: 3 } : {}),
         ...(geometryFunction ? { geometryFunction } : {}),
     });
 }
@@ -39,7 +42,7 @@ export interface EditingOptions {
 }
 
 export interface Editing {
-    select(feature: Feature<Geometry> | null, vertices: boolean): void;
+    select(feature: Feature<Geometry> | null, vertices: boolean, fixed?: boolean): void;
     raiseSnap(): void;
     dispose(): void;
 }
@@ -48,7 +51,13 @@ export function createEditing(map: OlMap, source: VectorSource<Feature<Geometry>
     const selection = new Collection<Feature<Geometry>>();
     const editable = new Collection<Feature<Geometry>>();
     const translate = new Translate({ features: selection });
-    const modify = new Modify({ features: editable, ...(options.vertexStyle ? { style: options.vertexStyle } : {}) });
+    let fixed = false;
+    const modify = new Modify({
+        features: editable,
+        insertVertexCondition: () => !fixed,
+        deleteCondition: (event) => !fixed && altKeyOnly(event) && singleClick(event),
+        ...(options.vertexStyle ? { style: options.vertexStyle } : {}),
+    });
     const snap = options.snap ? new Snap({ source, pixelTolerance: options.snapTolerance }) : null;
 
     translate.on('translatestart', (event) => options.onStart(event.features.getArray()));
@@ -61,9 +70,10 @@ export function createEditing(map: OlMap, source: VectorSource<Feature<Geometry>
     if (snap) map.addInteraction(snap);
 
     return {
-        select(feature, vertices) {
+        select(feature, vertices, locked = false) {
             selection.clear();
             editable.clear();
+            fixed = locked;
             if (!feature) return;
             selection.push(feature);
             if (vertices) editable.push(feature);

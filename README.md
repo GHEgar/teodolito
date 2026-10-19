@@ -49,9 +49,10 @@ document.querySelector('#undo')?.addEventListener('click', () => teodolito.undo(
 
 | Feature | API |
 |---|---|
-| Tools: line, polygon, circle, rectangle, point, symbol, freehand, text | `setTool(tool \| null)`, `once`, `circleSides` options |
+| Tools: line, polygon, angle, circle, rectangle, point, symbol, freehand, text | `setTool(tool \| null)`, `once`, `circleSides` options |
 | Geodesic measures (length, area, perimeter, lon/lat) | `item.measure`, `measureGeometry()` |
 | Per-segment length and bearing, vertex angles | `measure.segments`, `measure.angles` |
+| Segment lengths, vertex angles and start/end markers on the map | `marks`, `setMarks()`, `markStyle`, `createMarkStyle()` |
 | Circle center and radius, rectangle width and height | `measure.shape` |
 | Metric and imperial units with `Intl`: m/km/ft/mi and m²/ha/km²/ft²/ac/mi² | `units` option, `setUnits()`, `format()`, `formatMeasure()` |
 | Live measure while drawing | `snapshot.drawing`, `snapshot.sketch` |
@@ -60,7 +61,7 @@ document.querySelector('#undo')?.addEventListener('click', () => teodolito.undo(
 | Undo/redo of add, remove, clear, move, vertex edits, text, props | `undo()`, `redo()`, `canUndo`, `canRedo` |
 | Text as state: you render the input | `editingTextId`, `commitText()`, `cancelText()` |
 | Your own style props per item | `defaultProps`, `setProps(id, patch)` |
-| Visibility | `setVisible(id, visible)` |
+| Names and visibility | `rename(id, name)`, `item.name`, `setVisible(id, visible)` |
 | Rotate and scale anything, circle radius | `rotate()`, `scale()`, `setTransform()`, `setRadius()` |
 | On-map handles for the selection | `handles`, `handleStyle`, `context.handle` |
 | GeoJSON in EPSG:4326 | `toGeoJSON()`, `fromGeoJSON()` |
@@ -92,6 +93,35 @@ Lines, polygons and rectangles carry `segments` (`length`, geodesic `bearing` 0�
 map projection) and `angles` (`vertex`, `degrees`, `coordinate`): interior angles for polygons whatever
 the ring winding, the angle between both segments for lines. Freehand strokes and circles leave them
 empty. `formatAngle()` and `formatBearing(deg, { style: 'quadrant' })` (`N 45° E`) format them.
+
+The `angle` tool takes three clicks (arm, vertex, arm) and measures `{ kind: 'angle', degrees }`, the
+angle between both arms (0–180°); its vertices can be dragged but not added or removed.
+
+## Marks on the map
+
+```ts
+import { createMarkStyle, createTeodolito } from 'teodolito';
+
+const teodolito = createTeodolito(map, {
+    style,
+    marks: { segmentLabels: true, vertexAngles: true, vertices: true },
+    markStyle: createMarkStyle({ font: '11px sans-serif', endpointRadius: 6 }),
+});
+teodolito.setMarks({ vertexAngles: false });
+```
+
+Marks are drawn on teodolito's layer after your style, for items and for the sketch. All are off by
+default. `segmentLabels` puts each segment's length on its midpoint, `vertexAngles` the interior angle
+on each vertex, and `vertices` marks the start, the end (lines only) and the vertices in between; freehand
+strokes only get start and end, circles none. Labels use the instance `units`, `locale` and `format`
+(imperial included) and `angleDigits` (0). A segment shorter than `minSegmentPixels` (40) on screen hides
+its label and the angles it touches. `snapshot.marks` holds the current switches.
+
+`markStyle(mark, context)` returns OpenLayers styles for one `Mark` (`type`: `segment`, `angle`, `start`,
+`end` or `vertex`; `index`, `coordinate`, `value`, `label`); styles without a geometry are placed on
+`mark.coordinate`. The default, `createMarkStyle()`, draws a filled start, a double-ring end and hollow
+vertices in `props.color` (or OpenLayers blue) and plain text labels; every color, radius, font and
+offset is an option.
 
 ## Symbols, rotation and scale
 
@@ -140,9 +170,9 @@ Your style function gets `(feature, context)`:
 
 | Field | Meaning |
 |---|---|
-| `kind` | `line`, `polygon`, `circle`, `rectangle`, `point`, `symbol`, `freehand` or `text` |
+| `kind` | `line`, `polygon`, `angle`, `circle`, `rectangle`, `point`, `symbol`, `freehand` or `text` |
 | `measure`, `label` | the raw measure and its formatted text (the text itself for `text`) |
-| `text`, `props` | the item's text and your own props |
+| `name`, `text`, `props` | the item's name, its text and your own props |
 | `selected`, `editing` | selection and text editing state |
 | `symbol`, `rotation`, `scale` | the item's symbol and its clockwise rotation (radians) and scale |
 | `handle` | set on handle points: `rotate`, `scale`, `radius` or `corner`; `null` otherwise |
@@ -230,6 +260,11 @@ function Toolbar() {
 }
 ```
 
+A floating list of measurements needs nothing else: `items` (each with `id`, `kind`, `name`, `measure`,
+`visible`), `selectedId`, `select`, `rename`, `setVisible`, `remove`, `clear`, `undo`/`redo` with
+`canUndo`/`canRedo`, `format(item.measure)`, `toGeoJSON()`, and `marks`/`setMarks` for the label switches.
+Names travel as `properties.name` in GeoJSON; renaming is one undo step, hiding is not recorded.
+
 `useMeasurement(id)` reads one item and keeps its reference while it does not change. `useTextEditor()`
 returns the text being edited with its map coordinate, `commit` and `cancel`.
 
@@ -261,8 +296,8 @@ npm run demo
 npm run e2e
 ```
 
-The demo is an OpenStreetMap map with every tool, units, segments and angles, a list of items with
-colors, visibility, rotate and scale, GeoJSON download, text editing on the map and an elevation panel
+The demo is an OpenStreetMap map with every tool, units, segment and angle marks, a list of items with
+names, colors, visibility, rotate and scale, GeoJSON download, text editing on the map and an elevation panel
 fed by a synthetic provider or Terrarium tiles. The e2e suite runs Playwright against it.
 
 ## Contributing

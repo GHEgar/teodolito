@@ -35,12 +35,23 @@ function Transform({ item }: { item: Item }) {
     );
 }
 
+function Name({ item }: { item: Item }) {
+    const t = useTeodolito();
+    const commit = (value: string) => { t.rename(item.id, value); };
+    return (
+        <input key={item.name} className="name" aria-label="Name" placeholder="Name" defaultValue={item.name}
+            onBlur={(e) => commit(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') commit(e.currentTarget.value); }} />
+    );
+}
+
 export function Details({ item }: { item: Item }) {
     const { measure } = item;
     const shape = measure.kind === 'area' ? measure.shape : undefined;
-    const segments = measure.kind === 'length' || measure.kind === 'area' ? measure : null;
+    const segments = measure.kind === 'length' || measure.kind === 'area' || measure.kind === 'angle' ? measure : null;
     return (
         <div className="details" data-testid="details">
+            <Name item={item} />
             <Transform item={item} />
             {shape?.type === 'circle' && <p data-testid="radius">Radius {len(shape.radius)}</p>}
             {shape?.type === 'rectangle' && <p data-testid="sides">{len(shape.width)} × {len(shape.height)}</p>}

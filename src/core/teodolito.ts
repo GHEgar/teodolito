@@ -8,12 +8,14 @@ import { createTransforms } from './actions.js';
 import type { Teodolito } from './api.js';
 import { createCommands } from './commands.js';
 import { startDrawing, type Drawing } from './drawing.js';
-import { defaultUnits, formatMeasure, type Units } from './format.js';
+import { defaultUnits, formatAngle, formatLength, formatMeasure, type Units } from './format.js';
 import { readCollection, writeCollection } from './geojson.js';
 import { createHandles } from './handles.js';
 import { createHistory } from './history.js';
 import { createEditing } from './interactions.js';
 import { listenKeys } from './keyboard.js';
+import { createMarkStyle } from './mark-style.js';
+import { defaultMarks } from './marks.js';
 import { measureGeometry, type Measure } from './measure.js';
 import { createRegistry, type Entry } from './registry.js';
 import { listenPointer } from './pointer.js';
@@ -31,7 +33,8 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
     const defaultProps = (kind: Kind): Props => options.defaultProps?.(kind) ?? {};
     const store = createStore<Snapshot>({
         tool: null, drawing: false, sketch: null, items: [], selectedId: null, editingTextId: null,
-        symbol: options.symbol ?? '', units: { ...defaultUnits, ...options.units }, canUndo: false, canRedo: false,
+        symbol: options.symbol ?? '', units: { ...defaultUnits, ...options.units }, marks: { ...defaultMarks, ...options.marks },
+        canUndo: false, canRedo: false,
     });
     const sides = options.circleSides ?? 64;
     const limits = options.scaleLimits ?? [0.25, 4] as const;
@@ -39,9 +42,8 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
     const source = new VectorSource<Feature<Geometry>>();
     const registry = createRegistry(source, (items) => store.set({ items }));
     const syncHistory = (): void => store.set({ canUndo: history.canUndo(), canRedo: history.canRedo() });
-    const format = (measure: Measure): string => formatMeasure(measure, {
-        ...options.format, units: store.get().units, ...(options.locale ? { locale: options.locale } : {}),
-    });
+    const formatOptions = () => ({ ...options.format, units: store.get().units, ...(options.locale ? { locale: options.locale } : {}) });
+    const format = (measure: Measure): string => formatMeasure(measure, formatOptions());
     const styling = {
         style: options.style,
         item: registry.item,
@@ -52,6 +54,12 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         label: (kind: Kind, measure: Measure, text: string) => (kind === 'text' ? text : format(measure)),
         defaultProps,
         projection,
+        marks: () => store.get().marks,
+        markStyle: options.markStyle ?? createMarkStyle(),
+        markFormat: {
+            length: (meters: number) => formatLength(meters, formatOptions()).text,
+            angle: (degrees: number, digits: number) => formatAngle(degrees, { ...formatOptions(), maximumFractionDigits: digits }),
+        },
     };
     const layer = new VectorLayer({ source, style: layerStyle(styling), zIndex: options.zIndex ?? 1000 });
     map.addLayer(layer);
@@ -62,7 +70,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         const next = id && registry.item(id) ? id : null;
         if (previous === next) return;
         const kind = next ? registry.item(next)?.kind : undefined;
-        editing.select((next && registry.feature(next)) || null, kind !== 'circle' && kind !== 'rectangle');
+        editing.select((next && registry.feature(next)) || null, kind !== 'circle' && kind !== 'rectangle', kind === 'angle');
         handles?.show(next);
         store.set({ selectedId: next });
         refresh(previous);
@@ -127,7 +135,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         ops.insert({
             feature,
             item: {
-                id, kind: tool, measure: measureGeometry(geometry, projection(), tool), text: '', props: defaultProps(tool),
+                id, kind: tool, measure: measureGeometry(geometry, projection(), tool), name: '', text: '', props: defaultProps(tool),
                 visible: true, symbol: tool === 'symbol' ? store.get().symbol : '', rotation: 0, scale: 1,
             },
             index: Number.POSITIVE_INFINITY,
@@ -220,6 +228,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         remove,
         clear: () => recorded(commands.clear()) && (emit({ type: 'clear' }), true),
         setVisible: (id, visible) => ops.update(id, { visible }),
+        rename: (id, name) => recorded(commands.update(id, { name: name.trim() })),
         setProps: (id, props) => recorded(commands.update(id, { props: { ...registry.item(id)?.props, ...props } })),
         editText: (id) => text.begin(id, false),
         commitText: text.commit,
@@ -227,6 +236,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
         undo,
         redo,
         setUnits: (units) => { store.set({ units: { ...store.get().units, ...units } }); layer.changed(); },
+        setMarks: (marks) => { store.set({ marks: { ...store.get().marks, ...marks } }); layer.changed(); },
         format,
         getFeature: (id) => registry.feature(id) ?? null,
         getCoordinate: (id) => {
@@ -248,7 +258,7 @@ export function createTeodolito(map: OlMap, options: TeodolitoOptions = {}): Teo
                 const id = parsed.id && !registry.item(parsed.id) ? parsed.id : newId();
                 registry.insert(parsed.feature, {
                     id, kind: parsed.kind, measure: measureGeometry(geometry, projection(), parsed.kind),
-                    text: parsed.text, props: parsed.props, visible: parsed.visible,
+                    name: parsed.name, text: parsed.text, props: parsed.props, visible: parsed.visible,
                     symbol: parsed.symbol, rotation: parsed.rotation, scale: parsed.scale,
                 });
             });

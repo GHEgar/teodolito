@@ -48,6 +48,8 @@ export function formatMeasure(measure: Measure, options: FormatOptions = {}): st
             return formatLength(measure.length, options).text;
         case 'area':
             return formatArea(measure.area, options).text;
+        case 'angle':
+            return formatAngle(measure.degrees, options);
         case 'point':
             return formatLonLat(measure.lonLat, options);
         default:

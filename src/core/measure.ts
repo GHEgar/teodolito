@@ -11,6 +11,7 @@ import type { Kind } from './types.js';
 
 export type Measure =
     | { kind: 'length'; length: number; segments: readonly Segment[]; angles: readonly Angle[] }
+    | { kind: 'angle'; degrees: number; length: number; segments: readonly Segment[]; angles: readonly Angle[] }
     | { kind: 'area'; area: number; perimeter: number; segments: readonly Segment[]; angles: readonly Angle[]; shape?: Shape }
     | { kind: 'point'; lonLat: [number, number] }
     | { kind: 'none' };
@@ -29,7 +30,10 @@ export function measureGeometry(geometry: Geometry, projection: ProjectionLike =
         case 'LineString': {
             const coordinates = (geometry as LineString).getCoordinates();
             const details = withSegments(kind) ? measureSegments(coordinates, projection, false) : noSegments;
-            return { kind: 'length', length: getLength(geometry, options), ...details };
+            const length = getLength(geometry, options);
+            const angle = kind === 'angle' ? details.angles[0] : undefined;
+            if (angle) return { kind: 'angle', degrees: angle.degrees, length, ...details };
+            return { kind: 'length', length, ...details };
         }
         case 'MultiLineString':
             return { kind: 'length', length: getLength(geometry, options), ...noSegments };

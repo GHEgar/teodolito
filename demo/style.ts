@@ -1,11 +1,10 @@
+import type { FeatureLike } from 'ol/Feature.js';
+import type LineString from 'ol/geom/LineString.js';
 import Point from 'ol/geom/Point.js';
 import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style.js';
-import { formatAngle, formatLength, type Measure, type StyleContext, type StyleFunction } from 'teodolito';
+import { createMarkStyle, formatLength, type Measure, type StyleContext, type StyleFunction } from 'teodolito';
 
 export const swatches = ['#0f766e', '#c2410c', '#7c3aed', '#be123c', '#1d4ed8'];
-
-export let showDetails = true;
-export const setShowDetails = (value: boolean): void => { showDetails = value; };
 
 const halo = new Stroke({ color: 'rgba(255,255,255,0.95)', width: 4 });
 
@@ -28,27 +27,13 @@ const vertex = (color: string, radius = 5) => new Circle({
     stroke: new Stroke({ color, width: 2 }),
 });
 
-const small = (text: string, offsetY = 0): Text => new Text({
-    text,
+export const demoMarkStyle = createMarkStyle({
     font: '500 11px Rotulo, system-ui, sans-serif',
-    fill: new Fill({ color: '#334155' }),
-    stroke: halo,
-    offsetY,
+    textColor: '#334155',
+    endpointRadius: 6,
+    segmentOffset: 12,
+    angleOffset: -16,
 });
-
-function details(measure: Measure): Style[] {
-    if (!showDetails || (measure.kind !== 'length' && measure.kind !== 'area')) return [];
-    return [
-        ...measure.segments.map((segment) => new Style({
-            geometry: new Point(segment.midpoint),
-            text: small(formatLength(segment.length, { locale: 'en-US' }).text, 12),
-        })),
-        ...measure.angles.map((angle) => new Style({
-            geometry: new Point(angle.coordinate),
-            text: small(formatAngle(angle.degrees, { locale: 'en-US', maximumFractionDigits: 0 }), 14),
-        })),
-    ];
-}
 
 function circleLabel(measure: Measure, fallback: string): string {
     if (measure.kind !== 'area' || measure.shape?.type !== 'circle') return fallback;
@@ -64,7 +49,13 @@ function handle(color: string, kind: NonNullable<StyleContext['handle']>): Style
     });
 }
 
-export const demoStyle: StyleFunction = (_feature, context) => {
+function angleStyle(feature: FeatureLike, stroke: Stroke, text: string): Style[] {
+    const vertex = (feature.getGeometry() as LineString).getCoordinates?.()[1];
+    if (!vertex) return [new Style({ stroke })];
+    return [new Style({ stroke }), new Style({ geometry: new Point(vertex), text: label(text, 'point', 20) })];
+}
+
+export const demoStyle: StyleFunction = (feature, context) => {
     const color = typeof context.props.color === 'string' ? context.props.color : '#0f766e';
     const width = context.selected ? 4 : 2.5;
     const dash = context.sketch ? [8, 6] : undefined;
@@ -75,11 +66,13 @@ export const demoStyle: StyleFunction = (_feature, context) => {
     switch (context.kind) {
         case 'polygon':
         case 'rectangle':
-            return [new Style({ stroke, fill, text: label(context.label) }), ...details(context.measure)];
+            return new Style({ stroke, fill, text: label(context.label) });
         case 'circle':
             return new Style({ stroke, fill, text: label(circleLabel(context.measure, context.label)) });
         case 'line':
-            return [new Style({ stroke, text: label(context.label, 'line', -12) }), ...details(context.measure)];
+            return new Style({ stroke, text: label(context.label, 'line', -12) });
+        case 'angle':
+            return angleStyle(feature, stroke, context.label);
         case 'freehand':
             return new Style({ stroke });
         case 'point':

@@ -1,6 +1,10 @@
 export { createTeodolito } from './teodolito.js';
 export type { Teodolito } from './api.js';
 export type { StyleTransform, Transforms } from './actions.js';
+export { createMarkStyle } from './mark-style.js';
+export type { MarkStyleOptions } from './mark-style.js';
+export { computeMarks, defaultMarks } from './marks.js';
+export type { Mark, MarkFormat, Marks, MarkStyleFunction, MarkType } from './marks.js';
 export { measureGeometry } from './measure.js';
 export type { Measure } from './measure.js';
 export { bearing, measureSegments } from './segments.js';

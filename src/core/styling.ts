@@ -1,6 +1,8 @@
 import type { FeatureLike } from 'ol/Feature.js';
+import type Geometry from 'ol/geom/Geometry.js';
 import type { ProjectionLike } from 'ol/proj.js';
 import Style, { createDefaultStyle, createEditingStyle } from 'ol/style/Style.js';
+import { anyMarks, computeMarks, markStyles, type MarkFormat, type Marks, type MarkStyleFunction } from './marks.js';
 import { measureGeometry, type Measure } from './measure.js';
 import type { Handle, Item, Kind, Props, StyleContext, StyleFunction, Tool } from './types.js';
 
@@ -14,21 +16,35 @@ export interface StylingDeps {
     label(kind: Kind, measure: Measure, text: string): string;
     defaultProps(kind: Kind): Props;
     projection(): ProjectionLike;
+    marks(): Marks;
+    markStyle: MarkStyleFunction;
+    markFormat: MarkFormat;
 }
 
-type OlStyleFunction = (feature: FeatureLike, resolution: number) => Style | Style[] | undefined;
+type Styles = Style | Style[] | undefined;
+type OlStyleFunction = (feature: FeatureLike, resolution: number) => Styles;
 
 const editing = createEditingStyle();
+
+function withMarks(base: Styles, feature: FeatureLike, context: StyleContext, deps: StylingDeps): Styles {
+    const marks = deps.marks();
+    const geometry = feature.getGeometry();
+    if (!anyMarks(marks) || !geometry || !('getRevision' in geometry)) return base;
+    const found = computeMarks(geometry as Geometry, context.kind, context.measure, context.resolution, marks, deps.markFormat);
+    if (found.length === 0) return base;
+    const list = Array.isArray(base) ? base : base ? [base] : [];
+    return [...list, ...markStyles(found, context, deps.markStyle)];
+}
 
 export function layerStyle(deps: StylingDeps): OlStyleFunction {
     return (feature, resolution) => {
         const item = deps.item(String(feature.getId()));
         if (!item || !item.visible) return undefined;
-        if (!deps.style) return createDefaultStyle(feature, resolution);
         const context: StyleContext = {
             kind: item.kind,
             measure: item.measure,
             label: deps.label(item.kind, item.measure, item.text),
+            name: item.name,
             text: item.text,
             props: item.props,
             selected: deps.selectedId() === item.id,
@@ -41,7 +57,8 @@ export function layerStyle(deps: StylingDeps): OlStyleFunction {
             handle: null,
             resolution,
         };
-        return deps.style(feature, context);
+        const base = deps.style ? deps.style(feature, context) : createDefaultStyle(feature, resolution);
+        return withMarks(base, feature, context, deps);
     };
 }
 
@@ -51,7 +68,6 @@ export function sketchStyle(deps: StylingDeps): OlStyleFunction {
         const kind = deps.tool();
         if (!geometry || !kind) return undefined;
         const type = geometry.getType();
-        if (!deps.style) return editing[type];
         const vertex = type === 'Point' && kind !== 'point' && kind !== 'text';
         const measure: Measure = 'getRevision' in geometry
             ? measureGeometry(geometry, deps.projection(), kind)
@@ -60,6 +76,7 @@ export function sketchStyle(deps: StylingDeps): OlStyleFunction {
             kind,
             measure,
             label: deps.label(kind, measure, ''),
+            name: '',
             text: '',
             props: deps.defaultProps(kind),
             selected: false,
@@ -72,7 +89,7 @@ export function sketchStyle(deps: StylingDeps): OlStyleFunction {
             handle: null,
             resolution,
         };
-        return deps.style(feature, context);
+        return withMarks(deps.style ? deps.style(feature, context) : editing[type], feature, context, deps);
     };
 }
 
@@ -85,6 +102,7 @@ export function handleStyle(deps: StylingDeps): OlStyleFunction {
             kind: item.kind,
             measure: item.measure,
             label: '',
+            name: item.name,
             text: item.text,
             props: item.props,
             selected: true,

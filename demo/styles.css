@@ -15,7 +15,7 @@ body { margin: 0; background: #f8fafc; }
 .map { position: absolute; inset: 0; }
 
 .toolbar {
-    position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+    position: absolute; top: 16px; left: calc((100% - 352px) / 2); transform: translateX(-50%);
     display: flex; align-items: center; gap: 4px; padding: 6px;
     background: var(--paper); border-radius: 999px; box-shadow: 0 4px 16px rgb(15 23 42 / 0.15);
 }
@@ -69,7 +69,7 @@ body { margin: 0; background: #f8fafc; }
 }
 @media (max-width: 640px) {
     .panel { top: auto; bottom: 16px; left: 16px; right: 16px; width: auto; max-height: 40%; }
-    .toolbar { max-width: calc(100% - 32px); overflow-x: auto; }
+    .toolbar { left: 50%; max-width: calc(100% - 32px); overflow-x: auto; }
 }
 
 .profile {
@@ -109,3 +109,4 @@ body { margin: 0; background: #f8fafc; }
 .symbols button[aria-checked='true'] { background: var(--accent-soft); }
 .transform { display: flex; align-items: center; gap: 2px; margin-top: 4px; }
 .transform span { margin-left: 6px; font-variant-numeric: tabular-nums; }
+.details .name { width: 100%; margin-top: 6px; padding: 4px 6px; font: inherit; color: var(--ink); border: 1px solid var(--line); border-radius: 4px; box-sizing: border-box; }

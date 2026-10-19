@@ -11,7 +11,7 @@ import { TeodolitoProvider, useCreateTeodolito } from 'teodolito/react';
 import { ItemList } from './ItemList';
 import { ElevationPanel } from './ElevationPanel';
 import type { ProviderKey } from './elevation';
-import { demoStyle, swatches } from './style';
+import { demoMarkStyle, demoStyle, swatches } from './style';
 import { TextEditor } from './TextEditor';
 import { Toolbar } from './Toolbar';
 
@@ -34,6 +34,8 @@ function App() {
 
     const teodolito = useCreateTeodolito(map, {
         style: demoStyle,
+        markStyle: demoMarkStyle,
+        marks: { segmentLabels: true, vertexAngles: true, vertices: true },
         locale: 'en-US',
         defaultProps: () => ({ color: swatches[0] }),
         symbol: '🌳',

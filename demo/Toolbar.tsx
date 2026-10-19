@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { useTeodolito } from 'teodolito/react';
 import type { Tool } from 'teodolito';
 import { Icon, type IconName } from './icons';
-import { showDetails, setShowDetails } from './style';
 
 export const symbols = ['🌳', '⛰️', '🏠', '🚩', '⚠️', '💧', '🚌', '⭐'];
 
@@ -10,6 +8,7 @@ const tools: { tool: Tool | null; icon: IconName; label: string }[] = [
     { tool: null, icon: 'pointer', label: 'Select' },
     { tool: 'line', icon: 'line', label: 'Distance' },
     { tool: 'polygon', icon: 'polygon', label: 'Area' },
+    { tool: 'angle', icon: 'angle', label: 'Angle' },
     { tool: 'circle', icon: 'circle', label: 'Circle' },
     { tool: 'rectangle', icon: 'rectangle', label: 'Rectangle' },
     { tool: 'point', icon: 'point', label: 'Point' },
@@ -20,12 +19,7 @@ const tools: { tool: Tool | null; icon: IconName; label: string }[] = [
 
 export function Toolbar() {
     const t = useTeodolito();
-    const [details, setDetails] = useState(showDetails);
-    const toggleDetails = () => {
-        setShowDetails(!details);
-        setDetails(!details);
-        t.instance.layer.changed();
-    };
+    const labels = t.marks.segmentLabels && t.marks.vertexAngles;
     return (
         <div className="toolbar" role="toolbar" aria-label="Tools">
             {tools.map(({ tool, icon, label }) => (
@@ -36,8 +30,12 @@ export function Toolbar() {
             ))}
             <span className="sep" />
             <button type="button" className="tool" title="Segments and angles" aria-label="Segments and angles"
-                aria-pressed={details} onClick={toggleDetails}>
-                <Icon name="angle" />
+                aria-pressed={labels} onClick={() => t.setMarks({ segmentLabels: !labels, vertexAngles: !labels })}>
+                <Icon name="ruler" />
+            </button>
+            <button type="button" className="tool" title="Vertices" aria-label="Vertices"
+                aria-pressed={t.marks.vertices} onClick={() => t.setMarks({ vertices: !t.marks.vertices })}>
+                <Icon name="vertices" />
             </button>
             <button type="button" className="tool" title="Undo" aria-label="Undo"
                 disabled={!t.canUndo} onClick={() => t.undo()}>

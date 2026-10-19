@@ -7,6 +7,7 @@ import type VectorSource from 'ol/source/Vector.js';
 import type { Transforms } from './actions.js';
 import type { Units } from './format.js';
 import type { TeodolitoCollection } from './geojson.js';
+import type { Marks } from './marks.js';
 import type { Measure } from './measure.js';
 import type { Listener } from './store.js';
 import type { Props, Snapshot, Tool } from './types.js';
@@ -26,6 +27,7 @@ export interface Teodolito extends Transforms {
     remove(id: string): boolean;
     clear(): boolean;
     setVisible(id: string, visible: boolean): void;
+    rename(id: string, name: string): boolean;
     setProps(id: string, props: Props): boolean;
     editText(id: string): void;
     commitText(value: string): void;
@@ -33,6 +35,7 @@ export interface Teodolito extends Transforms {
     undo(): boolean;
     redo(): boolean;
     setUnits(units: Partial<Units>): void;
+    setMarks(marks: Partial<Marks>): void;
     format(measure: Measure): string;
     getFeature(id: string): Feature<Geometry> | null;
     getCoordinate(id: string): Coordinate | null;

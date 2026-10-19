@@ -8,7 +8,7 @@ export interface TeodolitoFeature {
     type: 'Feature';
     id: string;
     geometry: unknown;
-    properties: { kind: Kind; text: string; props: Props; visible: boolean; symbol: string; rotation: number; scale: number };
+    properties: { kind: Kind; name: string; text: string; props: Props; visible: boolean; symbol: string; rotation: number; scale: number };
 }
 
 export interface TeodolitoCollection {
@@ -20,6 +20,7 @@ export interface Parsed {
     feature: Feature<Geometry>;
     id: string | null;
     kind: Kind;
+    name: string;
     text: string;
     props: Props;
     visible: boolean;
@@ -28,7 +29,7 @@ export interface Parsed {
     scale: number;
 }
 
-const kinds: readonly Kind[] = ['line', 'polygon', 'point', 'freehand', 'text', 'circle', 'rectangle', 'symbol'];
+const kinds: readonly Kind[] = ['line', 'polygon', 'point', 'freehand', 'text', 'circle', 'rectangle', 'symbol', 'angle'];
 const finite = (value: unknown, fallback: number): number => (typeof value === 'number' && Number.isFinite(value) ? value : fallback);
 
 const options = (projection: ProjectionLike) => ({ dataProjection: 'EPSG:4326', featureProjection: projection });
@@ -42,7 +43,7 @@ export function writeCollection(entries: [Feature<Geometry>, Item][], projection
             id: item.id,
             geometry: format.writeGeometryObject(feature.getGeometry() as Geometry, options(projection)),
             properties: {
-                kind: item.kind, text: item.text, props: item.props, visible: item.visible,
+                kind: item.kind, name: item.name, text: item.text, props: item.props, visible: item.visible,
                 symbol: item.symbol, rotation: item.rotation, scale: item.scale,
             },
         })),
@@ -55,17 +56,19 @@ export function readCollection(collection: unknown, projection: ProjectionLike):
         const kind = feature.get('kind') as Kind;
         if (!kinds.includes(kind) || !feature.getGeometry()) return [];
         const id = feature.getId();
+        const name = feature.get('name');
         const text = feature.get('text');
         const props = feature.get('props');
         const visible = feature.get('visible') !== false;
         const symbol = feature.get('symbol');
         const rotation = finite(feature.get('rotation'), 0);
         const scale = finite(feature.get('scale'), 1);
-        ['kind', 'text', 'props', 'visible', 'symbol', 'rotation', 'scale'].forEach((key) => feature.unset(key, true));
+        ['kind', 'name', 'text', 'props', 'visible', 'symbol', 'rotation', 'scale'].forEach((key) => feature.unset(key, true));
         return [{
             feature,
             id: id === undefined ? null : String(id),
             kind,
+            name: typeof name === 'string' ? name : '',
             text: typeof text === 'string' ? text : '',
             props: props && typeof props === 'object' ? props : {},
             visible,

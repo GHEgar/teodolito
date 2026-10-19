@@ -1,6 +1,6 @@
 import {
     Angle, Circle, Collapse, Download, Expand, Eye, EyeOff, Freehand, Point, Pointer, Polygon, Polyline, Rectangle,
-    Redo, RotateLeft, RotateRight, Star, Text, Trash, Undo,
+    Redo, RotateLeft, RotateRight, Ruler, ShareNodes, Star, Text, Trash, Undo,
 } from 'tesela/react';
 
 const icons = {
@@ -10,6 +10,8 @@ const icons = {
     freehand: <Freehand size={20} stroke={1.8} />,
     rectangle: <Rectangle size={20} stroke={1.8} />,
     angle: <Angle size={20} stroke={1.8} />,
+    ruler: <Ruler size={20} stroke={1.8} />,
+    vertices: <ShareNodes size={20} stroke={1.8} />,
     point: <Point size={20} stroke={1.8} />,
     text: <Text size={20} stroke={1.8} />,
     circle: <Circle size={20} stroke={1.8} />,

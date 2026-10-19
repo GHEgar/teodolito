@@ -21,6 +21,17 @@ describe('teodolito/react', () => {
         expect(result.current.items).toHaveLength(0);
     });
 
+    it('useTeodolito renombra y cambia las marcas', () => {
+        const t = setup();
+        const id = draw(t, 'point', new Point([0, 0]));
+        const wrapper = ({ children }: { children: ReactNode }) => <TeodolitoProvider value={t}>{children}</TeodolitoProvider>;
+        const { result } = renderHook(() => useTeodolito(), { wrapper });
+        act(() => { result.current.rename(id, 'Well'); });
+        expect(result.current.items[0]?.name).toBe('Well');
+        act(() => { result.current.setMarks({ segmentLabels: true }); });
+        expect(result.current.marks.segmentLabels).toBe(true);
+    });
+
     it('useMeasurement conserva la referencia mientras el item no cambia', () => {
         const t = setup();
         const id = draw(t, 'point', new Point([0, 0]));

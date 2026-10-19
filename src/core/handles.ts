@@ -91,7 +91,7 @@ function spotsOf(item: Item, geometry: Geometry, unit: number, projection: Proje
             { handle: 'rotate', index: 0, coordinate: rotate },
         ];
     }
-    if (item.kind === 'line' || item.kind === 'polygon') {
+    if (item.kind === 'line' || item.kind === 'angle' || item.kind === 'polygon') {
         const [, , maxX, maxY] = geometry.getExtent() as [number, number, number, number];
         const [cx] = getCenter(geometry.getExtent()) as [number, number];
         return [

@@ -7,6 +7,20 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ### Agregado
 
+- Marcas sobre el mapa, apagadas por omisión: `marks` (`segmentLabels`, `vertexAngles`, `vertices`,
+  `minSegmentPixels` 40, `angleDigits` 0), `setMarks()` y `snapshot.marks`. Longitud de cada tramo en su
+  punto medio, ángulo interior en cada vértice e inicio, fin e intermedios marcados, también en el boceto.
+  Usan las unidades de la instancia (imperial incluido) y se ocultan si el tramo es corto en pantalla.
+- `markStyle` y `createMarkStyle(opciones)`: inicio relleno, fin con anillo doble y vértices huecos en
+  `props.color`, con colores, radios, fuente y desplazamientos configurables. Se exportan `computeMarks`,
+  `defaultMarks` y los tipos `Mark`, `MarkType`, `Marks`, `MarkFormat`, `MarkStyleFunction` y `MarkStyleOptions`.
+- Herramienta `angle`: tres clics (brazo, vértice, brazo) y medida `{ kind: 'angle', degrees }`; sus
+  vértices se arrastran pero no se agregan ni se quitan.
+- `rename(id, name)` e `item.name`: un paso de deshacer; GeoJSON lo guarda en `properties.name` y el
+  estilo lo recibe en `context.name`. `useTeodolito` expone `rename` y `setMarks`.
+- `Segment` suma `start` y `end` en la proyección del mapa.
+- Demo: herramienta de ángulo, interruptores de etiquetas y vértices con las marcas del paquete y campo
+  para renombrar.
 - Unidades imperiales: `ft` y `mi` para longitudes, `ft2`, `ac` y `mi2` para áreas, y `units.system`
   (`metric` por omisión, `imperial` o `auto`). Con `auto` el sistema sale de la región del `locale` o,
   sin él, de `navigator.language` (US, LR y MM son imperiales). `formatElevation` da pies en imperial.
@@ -21,6 +35,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
 
 ### Cambiado
 
+- `Tool`, `Kind` y `Measure` suman `angle`: un `switch` exhaustivo sobre ellos deja de compilar.
 - El demo está en inglés.
 - El demo usa los íconos de tesela.
 - Los mensajes de error del paquete están en inglés, con el prefijo `teodolito:` y los mismos datos.
