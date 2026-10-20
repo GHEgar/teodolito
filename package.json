@@ -1,6 +1,6 @@
 {
     "name": "teodolito",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "Headless measuring and drawing tools for OpenLayers: geodesic measures, vertex editing, undo/redo and GeoJSON.",
     "keywords": [
         "openlayers",

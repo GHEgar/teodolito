@@ -3,7 +3,7 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versionado con
 [SemVer](https://semver.org/lang/es/).
 
-## [No publicado]
+## [0.6.0] - 2026-10-19
 
 ### Agregado
 
@@ -27,7 +27,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y 
   (`metric` por omisión, `imperial` o `auto`). Con `auto` el sistema sale de la región del `locale` o,
   sin él, de `navigator.language` (US, LR y MM son imperiales). `formatElevation` da pies en imperial.
   Se exportan `resolveUnitSystem`, `localeSystem` y el tipo `UnitSystem`.
-- Pruebas de que `decodeImage` crea el contexto 2D con `willReadFrequently`.
+- Pruebas de que `decodeImage` crea el contexto 2D con `willReadFrequently`, para que el navegador no
+  avise al leer los píxeles de las teselas terrain-RGB; el README lo documenta.
 - Opciones `arbiter` y `tool` (por omisión `'measure'`): al activar una herramienta se reclama el clic
   en un árbitro estructural (`claim(tool, { escape }) => release`) y se suelta al apagarla o al
   destruir; si el árbitro quita el clic, se corre `escape()` y se apaga la herramienta.

@@ -242,7 +242,8 @@ const provider = cachedElevation(createTerrainRgbProvider({
 
 `encoding` is `'mapbox'`, `'terrarium'` or your own `(r, g, b, a) => number | null`. Each tile is fetched
 once and kept in a bounded cache (`maxTiles`, 64); an aborted request never poisons it. Tiles are decoded
-with `createImageBitmap` and a canvas on first use; pass `decode` to run elsewhere, `fetch` to add headers.
+with `createImageBitmap` and a canvas created with `willReadFrequently` on first use, so the browser keeps
+the pixels on the CPU and stays quiet; pass `decode` to run elsewhere, `fetch` to add headers.
 
 ## React
 
